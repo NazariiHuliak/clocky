@@ -2,7 +2,7 @@
 #define BLOCKMATRIX_H
 
 #include <Arduino.h>
-#include "Position2D.h"
+#include "../src/model/Position2D/Position2D.h"
 
 class BlockMatrix {
   private:

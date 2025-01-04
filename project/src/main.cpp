@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <FastLED.h>
-#include <../src/model/BlockMatrix.h>
+#include <../src/model/BlockMatrix/BlockMatrix.h>
 
 // Leds set up
 #define DATA_PIN    9
