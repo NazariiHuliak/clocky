@@ -10,6 +10,8 @@ class Position2D {
 
   public:
     Position2D(uint16_t x = 0, uint16_t y = 0);
+    uint16_t getX();
+    uint16_t getY();
     void println();
 };
 

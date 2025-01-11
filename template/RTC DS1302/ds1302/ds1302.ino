@@ -8,7 +8,7 @@ void setup(){
   Serial.begin(9600);
   delay(300);
   clock.begin(&Wire);
-  // clock.settime(15, 4, 6, 23, 1, 22, 6);
+  //clock.settime(15, 4, 6, 23, 1, 22, 6);
 }    
 
 void loop(){
