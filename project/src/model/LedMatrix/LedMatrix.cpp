@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include "LedMatrix.h"
 
-LedMatrix::LedMatrix(CFastLED FastLED, CRGB* leds, uint16_t width, uint16_t height, uint16_t blockSize): blockMatrix(width, height, blockSize) {
+LedMatrix::LedMatrix(CFastLED FastLED, CRGB* leds, iarduino_RTC& clock, uint16_t width, uint16_t height, uint16_t blockSize)
+    : blockMatrix(width, height, blockSize), timeParser(clock) {
     this->FastLED = FastLED;
     this->leds = leds;
 }
@@ -10,15 +11,13 @@ LedMatrix::~LedMatrix() {
     delete[] leds; 
 }
 
-void LedMatrix::setDateTimeWatchFace(DateTime currentTime, boolean mode) {
-    uint8_t* timeDigits = mode ? getParsedCurrentTime(currentTime) : getParsedCurrentDate(currentTime);
+void LedMatrix::setDateTimeWatchFace(boolean mode) {
+    uint8_t* time = mode ? timeParser.getCurrentTime() : timeParser.getCurrentDate();
     
-    this->setDigit(Position2D(16, 6), timeDigits[0]);
-    this->setDigit(Position2D(12, 6), timeDigits[1]);
-    this->setDigit(Position2D(6, 6), timeDigits[2]);
-    this->setDigit(Position2D(2, 6), timeDigits[3]);
-
-    delete[] timeDigits;
+    this->setDigit(Position2D(16, 6), (time[0] / 10));
+    this->setDigit(Position2D(12, 6), time[0] % 10);
+    this->setDigit(Position2D(6, 6), time[1] / 10);
+    this->setDigit(Position2D(2, 6), time[1] % 10);
 }
 
 CRGB* LedMatrix::getLeds() {

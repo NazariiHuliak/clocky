@@ -45,14 +45,19 @@ int sliderValue1 = customColorValues[0];
 int sliderValue2 = customColorValues[1]; 
 int sliderValue3 = customColorValues[2];
 
+
 //buttons 
 int buttonX = paletteX;
 int buttonY = colorBoxY + colorBoxHeight + 50; 
 int buttonHeight = 20;
 int buttonWidth = 60;
 
-HashMap<color, Integer> colorMap = new HashMap<color, Integer>();
-int colorKeyCounter = 1;
+
+//File writer
+HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
+int colorKeyCounter = 0;
+
+
 void setup() {
   size(8 * 30 + 350, 8 * 30 + 100);  
 
@@ -214,7 +219,7 @@ void processButtonClick() {
     if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
       clearMatrix();
     } else if (mouseX > buttonX + buttonWidth + 10 && mouseX<buttonX + 2 *buttonWidth + 10) {
-      println("works");
+      writeFiles();
     }
   }
 }
@@ -228,31 +233,29 @@ void clearMatrix() {
 }
 
 void writeFiles() {
+  String filePath = "D:\\University\\Diploma\\to delete\\";
+  long timeStamp = System.currentTimeMillis();
+  PrintWriter colorsFile = createWriter(filePath + "colors" + str(timeStamp) + ".txt");
+  PrintWriter keysFile = createWriter(filePath + "keys" + str(timeStamp) + ".txt");
 
-  
-  PrintWriter colorsFile = createWriter("colors.txt");
-  PrintWriter keysFile = createWriter("keys.txt");
-
-  // Iterate through the grid to assign keys and write data
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       color c = grid[i][j];
 
-      // If the color is not already mapped, assign it a new key
-      if (!colorMap.containsKey(c)) {
-        colorMap.put(c, colorKeyCounter);
-        colorsFile.println(colorKeyCounter + " -> (" + (int)red(c) + "," + (int)green(c) + "," + (int)blue(c) + ")");
+      String colorString = (int)red(c) + "," + (int)green(c) + "," + (int)blue(c);
+
+      if (!colorMap.containsKey(colorString)) {
+        colorMap.put(colorString, colorKeyCounter);
+        colorsFile.println(colorKeyCounter + " -> (" + colorString + ")");
         colorKeyCounter++;
       }
 
-      // Write the key to the keys file
-      int key = colorMap.get(c);
+      int key = colorMap.get(colorString);
       keysFile.print(key + " ");
     }
-    keysFile.println(); // Newline after each row
+    keysFile.println(); 
   }
 
-  // Close the files
   colorsFile.close();
   keysFile.close();
 

@@ -1,37 +1,31 @@
 #include "TimeUtils.h"
 
-DateTime parseDateTime(const String& timeStr) {
-    DateTime t;
+TimeUtils::TimeUtils(iarduino_RTC& rtc): clock(rtc) {}
 
-    t.day = timeStr.substring(0, 2).toInt();
-    t.month = timeStr.substring(3, 5).toInt();
-    t.year = timeStr.substring(6, 10).toInt();
-    t.hour = timeStr.substring(12, 14).toInt();
-    t.minute = timeStr.substring(15, 17).toInt();
-    t.second = timeStr.substring(18, 20).toInt();
-    t.dayOfWeek = timeStr.substring(22).toInt(); // Assuming D is numeric
+uint8_t* TimeUtils::getCurrentTime() {
+    String timeStr = clock.gettime("H:i");
 
-    return t;
+    uint8_t hours = timeStr.substring(0, 2).toInt();
+    uint8_t minutes = timeStr.substring(3, 5).toInt();
+    
+    if (hours != prevTime[0] || minutes != prevTime[1]) {
+        prevTime[0] = hours;
+        prevTime[1] = minutes;
+    }
+    
+    return prevTime;
 }
 
-uint8_t* getParsedCurrentTime(DateTime currentTime) {
-    uint8_t* timeDigits = new uint8_t[4];
+uint8_t* TimeUtils::getCurrentDate() {
+    String timeStr = clock.gettime("d-m");
 
-    timeDigits[0] = currentTime.hour / 10;
-    timeDigits[1] = currentTime.hour % 10;
-    timeDigits[2] = currentTime.minute / 10;
-    timeDigits[3] = currentTime.minute % 10;
-
-    return timeDigits;
-}
-
-uint8_t* getParsedCurrentDate(DateTime currentTime) {
-    uint8_t* timeDigits = new uint8_t[4];
-
-    timeDigits[0] = currentTime.day / 10;
-    timeDigits[1] = currentTime.day % 10;
-    timeDigits[2] = currentTime.month / 10;
-    timeDigits[3] = currentTime.month % 10;
-
-    return timeDigits;
+    uint8_t date = timeStr.substring(0, 2).toInt();
+    uint8_t month = timeStr.substring(3, 5).toInt();
+    
+    if (date != prevDate[0] || month != prevDate[1]) {
+        prevDate[0] = date;
+        prevDate[1] = month;
+    }
+    
+    return prevDate;
 }

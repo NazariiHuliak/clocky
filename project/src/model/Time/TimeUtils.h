@@ -1,21 +1,19 @@
-#ifndef TIMEUTILS_H
-#define TIMEUTILS_H
+#ifndef TIME_PARSER_H
+#define TIME_PARSER_H
 
-#include <Arduino.h> 
+#include <Arduino.h>
+#include <iarduino_RTC.h>
 
-struct DateTime {
-    uint16_t year;
-    uint8_t month;
-    uint8_t day;
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
-    uint8_t dayOfWeek;
+class TimeUtils {
+  private:
+    iarduino_RTC& clock;
+    uint8_t prevTime[2];  
+    uint8_t prevDate[2];
+
+  public:
+    TimeUtils(iarduino_RTC& rtc); 
+    uint8_t* getCurrentTime();
+    uint8_t* getCurrentDate();
 };
 
-void beginClock();
-DateTime parseDateTime(const String& timeStr);
-uint8_t* getParsedCurrentTime(DateTime currentTime);
-uint8_t* getParsedCurrentDate(DateTime currentTime);
-
-#endif 
+#endif
