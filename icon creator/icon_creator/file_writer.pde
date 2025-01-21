@@ -12,7 +12,13 @@ void writeFiles() {
     
     colorsBuffer.append("{");  
     keysBuffer.append("{");  
-        
+    
+    colorMap.entrySet().stream()
+      .sorted(Map.Entry.comparingByValue())
+      .forEach(entry -> {
+          colorsBuffer.append("{").append(entry.getKey()).append("},\n");
+      });
+    
     for (int i = 0; i < rows; i++) {
         keysBuffer.append("{");
         
