@@ -12,6 +12,8 @@ class BlockMatrix {
 
   public:
     BlockMatrix(uint16_t width, uint16_t height, uint16_t blockSize);
+    uint16_t getWidth();
+    uint16_t getHeight();
     Position2D getPosition(Position2D realPosition);
     uint16_t getMatrixIndex(uint16_t realIndex);
 };

@@ -39,11 +39,13 @@ void setup() {
   delay(300);
   clock.begin(&Wire);
 
-  uint16_t year;
-  uint8_t month, day, hour, minute, second;
+  // uint16_t year;
+  // uint8_t month, day, hour, minute, second;
 
-  getCompileDateTime(year, month, day, hour, minute, second);
-  // clock.settime(50, 55, 22, 14, 01, 25, 2);
+  // getCompileDateTime(year, month, day, hour, minute, second);
+  // clock.settime(second, minute, hour, day, month, year, 7);
+  // Serial.println(hour);
+  // Serial.println(minute);
 }
 
 void loop() {

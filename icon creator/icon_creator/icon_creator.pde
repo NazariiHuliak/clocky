@@ -1,3 +1,6 @@
+import java.util.*;
+import java.util.stream.*;
+
 // matrix
 int rows = 8;
 int cols = 7;
@@ -7,10 +10,9 @@ int startSpace = 10;
 
 // colors
 color[][] grid = new color[rows][cols];
-//boolean customColorWasChosen = false;
-color selectedColor = color(255, 255, 255);
-int[] customColorValues = new int[]{120, 255, 255};
-color customColor = color(customColorValues[0], customColorValues[1], customColorValues[2]);
+//color selectedColor = color(255, 255, 255);
+int[] selectedColorValues = new int[]{120, 255, 255};
+color selectedColor = color(selectedColorValues[0], selectedColorValues[1], selectedColorValues[2]);
 int minValue = 0;
 int maxValue = 255; 
 
@@ -25,7 +27,7 @@ int colorBoxWidth = 50;
 
 
 //input fields
-String[] inputs = {str(customColorValues[0]), str(customColorValues[1]), str(customColorValues[2])};
+String[] inputs = {str(selectedColorValues[0]), str(selectedColorValues[1]), str(selectedColorValues[2])};
 boolean[] isFocused = {false, false, false};
 boolean[] wasCleared = {false, false, false};
 int fieldX = paletteX + 320;
@@ -41,25 +43,27 @@ int sliderWidth = 200;
 int sliderHeight = 10; 
 int sliderSpacing = 30;
 
-int sliderValue1 = customColorValues[0]; 
-int sliderValue2 = customColorValues[1]; 
-int sliderValue3 = customColorValues[2];
-
+int[] sliderValues = new int[]{selectedColorValues[0], selectedColorValues[1], selectedColorValues[2]};
 
 //buttons 
 int buttonX = paletteX;
 int buttonY = colorBoxY + colorBoxHeight + 50; 
 int buttonHeight = 20;
-int buttonWidth = 60;
+int buttonWidth = 80;
 
 
 //File writer
 HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
 int colorKeyCounter = 0;
 
+boolean isFileInputFocused = false;
+int fileInputX = paletteX + 200;
+int fileInputY = buttonY;
+int fieldPathInputWidth = 100;
+
 
 void setup() {
-  size(8 * 30 + 350, 8 * 30 + 100);  
+  size(590, 340);  
 
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
@@ -72,7 +76,7 @@ void setup() {
 
 void draw() {
   background(220);
-  stroke(255);//
+  stroke(255);
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols; j++) {
       fill(grid[i][j]);
@@ -82,91 +86,16 @@ void draw() {
   }
 
   drawColorPalette();
-  drawControlPanel();
-}
-
-void drawColorPalette() {
-  fill(255, 0, 0);  // Red color
-  rect(colorBoxX, colorBoxY, colorBoxWidth, colorBoxHeight);
-
-  fill(0, 255, 0);  // Green color
-  rect(colorBoxX + 60, colorBoxY, colorBoxWidth, colorBoxHeight);
-
-  fill(0, 0, 255);  // Blue color
-  rect(colorBoxX + 120, colorBoxY, colorBoxWidth, colorBoxHeight);
-
-  fill(255, 255, 0);  // Yellow color
-  rect(colorBoxX + 180, colorBoxY, colorBoxWidth, colorBoxHeight);
-  
-  fill(255, 255, 255);  // white color
-  rect(colorBoxX + 240, colorBoxY, colorBoxWidth, colorBoxHeight);
-  
-  fill(100, 100, 100);  // grey color
-  rect(colorBoxX + 300, colorBoxY, colorBoxWidth, colorBoxHeight);
-  
+  drawButtonsPanel();
   drawSliderPanel();
+  drawScrollableColorPalette();
 }
 
-void drawControlPanel() {
-   
-   fill(100, 100, 100);  // grey color
-   rect(buttonX, buttonY, buttonWidth, buttonHeight);
-   rect(buttonX + buttonWidth + 10, buttonY, buttonWidth, buttonHeight);
 
-   fill(255, 255, 255);
-   text("Clear", buttonX + 14, buttonY + 8);
-   text("Write", buttonX + buttonWidth + 24, buttonY + 8);
-}
-
-void drawSliderPanel() {
-  int textPosition = 60;
-  
-  drawSlider(sliderX, paletteY, sliderValue1, maxValue);
-  text("Red", paletteX + textPosition, paletteY + 5);
-  
-  drawSlider(sliderX, paletteY + sliderSpacing, sliderValue2, maxValue);
-  text("Green", paletteX + textPosition, paletteY + sliderSpacing + 5);
-  
-  drawSlider(sliderX, paletteY + 2 * sliderSpacing, sliderValue3, maxValue);
-  text("Blue", paletteX + textPosition, paletteY + 2 * sliderSpacing + 5);
-  
-  fill(customColor); 
-  rect(paletteX, paletteY + 20, colorBoxWidth, colorBoxHeight);
-  
-  drawInputFiels();
-}
-
-void drawSlider(int x, int y, int sliderValue, int maxValue) {
-  fill(150);
-  rect(x, y, sliderWidth, sliderHeight);
-  
-  float knobX = map(sliderValue, 0, maxValue, x, x + sliderWidth);
-  fill(255, 0, 0);
-  ellipse(knobX, y + sliderHeight / 2, 20, 20);
-}
-
-void drawInputFiels() {
-  for (int i = 0; i < inputs.length; i++) {
-    int y = fieldY + i * (fieldHeight + fieldSpacing);
-
-    stroke(0);
-    fill(isFocused[i] ? 255 : 230); 
-    rect(fieldX, y, fieldWidth, fieldHeight);
-
-    fill(0);
-    textAlign(LEFT, CENTER);
-    text(inputs[i], fieldX + 5, y + fieldHeight / 2);
-  }
-}
-
-void mousePressed() {
-  processMatrixBoxClick();
-  processInputFieldsClick();
-  processColorPaletteClick();
-  processButtonClick();
-}
 
 void processMatrixBoxClick() {
+  if(mouseButton == RIGHT) return;
+  
   if (mouseY < rows * cellSize) {
     int row = (mouseY - startSpace) / cellSize;
     int col = (mouseX - startSpace) / cellSize;
@@ -180,134 +109,110 @@ void processMatrixBoxClick() {
   }
 }
 
-void processInputFieldsClick() {
-  for (int i = 0; i < isFocused.length; i++) {
-    int y = paletteY + i * (fieldHeight + fieldSpacing);
-    if (mouseX > fieldX && mouseX < fieldX + fieldWidth &&
-        mouseY > y && mouseY < y + fieldHeight) {
-      isFocused[i] = true; 
-    } else {
-      isFocused[i] = false; 
+void processColorPicker() {
+  if (mouseButton == RIGHT) {
+    if (mouseY < rows * cellSize) {
+    int row = (mouseY - startSpace) / cellSize;
+    int col = (mouseX - startSpace) / cellSize;
+      if (row >= 0 && row < rows && col >= 0 && col < cols) {
+        selectedColor = grid[row][col];
+        updateColor(selectedColor);
+      }
     }
   }
 }
 
-void processColorPaletteClick() {      
-  if (mouseY > colorBoxY && mouseY < colorBoxY + 50) {
-    if (mouseX > colorBoxX && mouseX < colorBoxX + 50) {
-      selectedColor = color(255, 0, 0);  // Red
-    } else if (mouseX > colorBoxX + 60 && mouseX < colorBoxX + 110) {
-      selectedColor = color(0, 255, 0);  // Green
-    } else if (mouseX > colorBoxX + 120 && mouseX < colorBoxX + 170) {
-      selectedColor = color(0, 0, 255);  // Blue
-    } else if (mouseX > colorBoxX + 180 && mouseX < colorBoxX + 230) {
-      selectedColor = color(255, 255, 0);  // Yellow
-    } else if (mouseX > colorBoxX + 240 && mouseX < colorBoxX + 290) {
-      selectedColor = color(255, 255, 255); // White
-    } else if (mouseX > colorBoxX + 300 && mouseX < colorBoxX + 350) {
-      selectedColor = color(100, 100, 100); // Grey
-    }
-  } else if (mouseY > paletteY + 20 && mouseY < paletteY + 20 + colorBoxHeight 
-              && mouseX > paletteX && mouseX < paletteX + colorBoxWidth){
-    println("custom color");
-    selectedColor = customColor;
-  }
-}
+void importColors(String data) {
+  HashMap<String, Integer> importColorMap = new HashMap<>();
+  String[] lines = data.split("\\n");
 
-void processButtonClick() {
-  if (mouseY > buttonY && mouseY < buttonY + buttonWidth) {
-    if(mouseX > buttonX && mouseX < buttonX + buttonWidth) {
-      clearMatrix();
-    } else if (mouseX > buttonX + buttonWidth + 10 && mouseX<buttonX + 2 *buttonWidth + 10) {
-      writeFiles();
-    }
-  }
-}
+  int index = 0;
 
-void clearMatrix() {
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      grid[i][j] = color(0); 
-    }
-  }
-}
-
-void writeFiles() {
-  String filePath = "D:\\University\\Diploma\\to delete\\";
-  long timeStamp = System.currentTimeMillis();
-  PrintWriter colorsFile = createWriter(filePath + "colors" + str(timeStamp) + ".txt");
-  PrintWriter keysFile = createWriter(filePath + "keys" + str(timeStamp) + ".txt");
-
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      color c = grid[i][j];
-
-      String colorString = (int)red(c) + "," + (int)green(c) + "," + (int)blue(c);
-
-      if (!colorMap.containsKey(colorString)) {
-        colorMap.put(colorString, colorKeyCounter);
-        colorsFile.println(colorKeyCounter + " -> (" + colorString + ")");
-        colorKeyCounter++;
+  for (String line : lines) {
+    line = line.replaceAll("[{};\\s]+", "").trim();
+    if (line.matches("\\d+,\\d+,\\d+,?")) {
+      if(line.endsWith(",")) {
+        line = line.substring(0, line.length() - 1);
       }
 
-      int key = colorMap.get(colorString);
-      keysFile.print(key + " ");
+      importColorMap.put(line, index);
+      index++;
     }
-    keysFile.println(); 
   }
 
-  colorsFile.close();
-  keysFile.close();
+  if (importColorMap.size() != 0) {
+    colorMap = importColorMap;
+    colorKeyCounter = index;
+    println(colorKeyCounter);
+    totalWidth = colorMap.size() * rectWidth;
+  }
+}
 
-  println("Files written: colors.txt and keys.txt");
+void importIcon(String data) {
+  if(colorMap.isEmpty()) {
+    System.out.println("Colors do not exist");
+    return;
+  }
+  
+  String[] lines = data.split("\\n");
+  var colorMapReversed = colorMap.entrySet().stream()
+                            .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
+  if (lines.length != rows) {
+      println("Error: The imported icon has an invalid size. Expected " + rows + " rows, but found " + lines.length + " rows. Please check the input.");
+      return;
+  }
+
+  for (int i = 0; i < lines.length; i++) {
+    String line = lines[i].replaceAll("[{};\\s]+", "").trim();
+    String[] colorIndexes = line.split(",");
+
+    if (colorIndexes.length != cols) {
+      println("Error: The imported icon has an invalid size. Expected " + cols + " columns, but found " + colorIndexes.length + " columns. Please verify the input.");
+      return;
+    }
+
+    for (int j = 0; j < cols; j++) {
+      try {
+        int currentColorIndex = Integer.parseInt(colorIndexes[j]);
+        String[] colorComponentStr = colorMapReversed.get(currentColorIndex).split(",");
+        
+        if (colorComponentStr.length != 3) {
+            throw new IllegalArgumentException("Invalid color format: expected 3 components (R, G, B), but got " + colorComponentStr.length);
+        }
+        
+        grid[i][j] = color(Integer.parseInt(colorComponentStr[0]), Integer.parseInt(colorComponentStr[1]), Integer.parseInt(colorComponentStr[2]));
+      } catch (NumberFormatException e) {
+          System.out.println("Error: Invalid number format while parsing color index at position [" + i + "][" + j + "]. Please check the input.");
+      } catch (IllegalArgumentException e) {
+          System.out.println("Error: " + e.getMessage() + " at position [" + i + "][" + j + "].");
+      } catch (Exception e) {
+          System.out.println("An unexpected error occurred during importing the icon at position [" + i + "][" + j + "].");
+      }
+    }
+  }
+}
+
+void mousePressed() {
+  processMatrixBoxClick();
+  processColorPicker();
+  processSliderInputFieldsClick();
+  processFilePathInputFieldClick();
+  processColorPaletteClick();
+  processButtonsClick();
+  processScrollablePaletteClick();
 }
 
 void keyPressed() {
-  for (int i = 0; i < inputs.length; i++) {
-    if (isFocused[i]) {
-      if (!wasCleared[i]) {
-        inputs[i] = "";
-        wasCleared[i] = true;
-      }
-      if (key >= '0' && key <= '9') { 
-        String fieldValueStr = inputs[i] + key;
-        int fieldValue = int(fieldValueStr);
-        if (fieldValue <= maxValue) {
-          inputs[i] = fieldValueStr;
-          updateCustomColor(fieldValue, i);
-        }
-      } else if (key == BACKSPACE && inputs[i].length() > 0) { 
-        inputs[i] = inputs[i].substring(0, inputs[i].length() - 1);
-      }
-    } else {
-      wasCleared[i] = false;
-    }
-  }
+  processSliderInputFieldsKeyPressed();
+  processFilePathInputFieldKeyPressed();
 }
 
 void mouseDragged() {
-  if (mouseY > sliderY && mouseY < sliderY + 10) { // Slider 1
-    sliderValue1 = (int)map(mouseX, sliderX, sliderX + sliderWidth, minValue, maxValue);
-    sliderValue1 = constrain(sliderValue1, minValue, maxValue);
-    
-    updateCustomColor(sliderValue1, 0);
-  } else if (mouseY > sliderY + 30 && mouseY < sliderY + 40) { // Slider 2
-    sliderValue2 = (int)map(mouseX, sliderX, sliderX + sliderWidth, minValue, maxValue);
-    sliderValue2 = constrain(sliderValue2, minValue, maxValue);
-    
-    updateCustomColor(sliderValue2, 1);
-  } else if (mouseY > sliderY + 60 && mouseY < sliderY + 70) { // Slider 3
-    sliderValue3 = (int)map(mouseX, sliderX, sliderX + sliderWidth, minValue, maxValue);
-    sliderValue3 = constrain(sliderValue3, minValue, maxValue);
-    
-    updateCustomColor(sliderValue3, 2);
-  }
+  processColorSliderMouseDragged();
+  processScrollablePaletteMouseDragged();
 }
 
-void updateCustomColor(int colorValue, int colorPosition) {
-  customColorValues[colorPosition] = colorValue;
-  inputs[colorPosition] = str(colorValue);
-  
-  customColor = color(customColorValues[0], customColorValues[1], customColorValues[2]);
-  selectedColor = customColor;
+void mouseReleased() {
+    dragging = false;
 }
