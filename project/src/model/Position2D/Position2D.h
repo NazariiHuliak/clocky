@@ -1,7 +1,7 @@
 #ifndef POSITION2D_H
 #define POSITION2D_H
 
-#include <Arduino.h> // Required for `String` and `Serial`
+#include <Arduino.h>
 
 class Position2D {
   private:

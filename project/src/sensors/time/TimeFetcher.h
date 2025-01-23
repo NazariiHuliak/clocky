@@ -4,14 +4,14 @@
 #include <Arduino.h>
 #include <iarduino_RTC.h>
 
-class TimeUtils {
+class TimeFetcher {
   private:
     iarduino_RTC& clock;
     uint8_t prevTime[2];  
     uint8_t prevDate[2];
 
   public:
-    TimeUtils(iarduino_RTC& rtc); 
+    TimeFetcher(iarduino_RTC& rtc); 
     uint8_t* getCurrentTime();
     uint8_t* getCurrentDate();
 };

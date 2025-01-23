@@ -2,9 +2,9 @@
 #include <Wire.h>
 #include <iarduino_RTC.h>
 #include <FastLED.h>
-#include <../src/model/BlockMatrix/BlockMatrix.h>
-#include "../src/resources/font/digits.h"
-#include "../src/model/LedMatrix/LedMatrix.h"
+
+#include <../src/model/LedMatrix/LedMatrix.h>
+#include <../src/model/watchface/TimeWatchFace.h>
 
 // Leds set up
 #define DATA_PIN    9
@@ -17,7 +17,11 @@ CRGB leds[NUM_LEDS];
 #define FRAMES_PER_SECOND  60
 
 iarduino_RTC clock(RTC_DS1302, 2, 4, 3);
-LedMatrix ledMatrix(FastLED, leds, clock, 24, 8, 8);
+LedMatrix ledMatrix;
+
+WatchFace* watchFaces[1] = {
+  new TimeWatchFace(leds, clock)
+};
 
 void getCompileDateTime(uint16_t& year, uint8_t& month, uint8_t& day, uint8_t& hour, uint8_t& minute, uint8_t& second) {
   const char monthNames[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
@@ -50,8 +54,8 @@ void setup() {
 
 void loop() {
   if(millis()%1000==0) {
-    ledMatrix.setDateTimeWatchFace(true);
+    ledMatrix.setWatchFace(watchFaces[0], false);
     FastLED.show();
     delay(1);
-  }  
+  }
 }

@@ -1,8 +1,8 @@
-#include "TimeUtils.h"
+#include "TimeFetcher.h"
 
-TimeUtils::TimeUtils(iarduino_RTC& rtc): clock(rtc) {}
+TimeFetcher::TimeFetcher(iarduino_RTC& rtc): clock(rtc) {}
 
-uint8_t* TimeUtils::getCurrentTime() {
+uint8_t* TimeFetcher::getCurrentTime() {
     String timeStr = clock.gettime("H:i");
 
     uint8_t hours = timeStr.substring(0, 2).toInt();
@@ -16,7 +16,7 @@ uint8_t* TimeUtils::getCurrentTime() {
     return prevTime;
 }
 
-uint8_t* TimeUtils::getCurrentDate() {
+uint8_t* TimeFetcher::getCurrentDate() {
     String timeStr = clock.gettime("d-m");
 
     uint8_t date = timeStr.substring(0, 2).toInt();
