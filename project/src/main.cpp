@@ -2,11 +2,12 @@
 #include <Wire.h>
 #include <iarduino_RTC.h>
 #include <FastLED.h>
-#include <../src/model/BlockMatrix/BlockMatrix.h>
-#include "../src/resources/font/digits.h"
-#include "../src/model/LedMatrix/LedMatrix.h"
 
-// Leds set up
+#include <../src/watchface/managers/WatchFaceManager.h>
+#include <../src/watchface/implementations/TimeWatchFace.h>
+#include <../src/hardware/buttons/ButtonHandler.h>
+
+// Leds
 #define DATA_PIN    9
 #define LED_TYPE    WS2812
 #define COLOR_ORDER GRB
@@ -16,42 +17,58 @@ CRGB leds[NUM_LEDS];
 #define BRIGHTNESS         2
 #define FRAMES_PER_SECOND  60
 
-iarduino_RTC clock(RTC_DS1302, 2, 4, 3);
-LedMatrix ledMatrix(FastLED, leds, clock, 24, 8, 8);
+// RTC
+#define RST 2
+#define CLK 4
+#define DAT 3
+iarduino_RTC clock(RTC_DS1302, RST, CLK, DAT);
 
-void getCompileDateTime(uint16_t& year, uint8_t& month, uint8_t& day, uint8_t& hour, uint8_t& minute, uint8_t& second) {
-  const char monthNames[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
-  char monthStr[4] = { __DATE__[0], __DATE__[1], __DATE__[2], '\0' };
-  month = (strstr(monthNames, monthStr) - monthNames) / 3 + 1;
-  day = atoi(&__DATE__[4]);
-  year = atoi(&__DATE__[7]);
+// Buttons
+#define BUTTON_1 5
+#define BUTTON_2 6
+#define BUTTON_3 7
 
-  hour = atoi(&__TIME__[0]);
-  minute = atoi(&__TIME__[3]);
-  second = atoi(&__TIME__[6]);
-}
+#define NUM_BUTTONS 3
+
+const uint8_t buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3 };
+ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
+
+
+WatchFace* watchFaces[2] = {
+  new TimeWatchFace(leds, clock),
+  new TimeWatchFace(leds, clock)
+};
+WatchFaceManager watchFaceManager(watchFaces, 2);
 
 void setup() {
-  FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
-  Serial.begin(9600);
-  delay(300);
   clock.begin(&Wire);
-
-  // uint16_t year;
-  // uint8_t month, day, hour, minute, second;
-
-  // getCompileDateTime(year, month, day, hour, minute, second);
-  // clock.settime(second, minute, hour, day, month, year, 7);
-  // Serial.println(hour);
-  // Serial.println(minute);
+  Serial.begin(9600);
 }
 
 void loop() {
-  if(millis()%1000==0) {
-    ledMatrix.setDateTimeWatchFace(true);
+  if (watchFaceManager.getIsWatchFaceChangeAllowed()) {
+    watchFaceManager.updateWatchFaceData();
+
+    switch (buttonHandler.processButtons()) {
+    case 0:
+      watchFaceManager.previousWatchFace();
+      break;
+    case 1:
+      watchFaceManager.nextMode();
+      break;
+    case 2:
+      watchFaceManager.nextWatchFace();
+      break;
+    default:
+      break;
+    }
+  }
+
+  if (millis() % 10 == 0) {
+    watchFaceManager.showWatchFace();
     FastLED.show();
-    delay(1);
-  }  
+  }
 }

@@ -71,16 +71,6 @@ void setup() {
     }
   }
   
-  
-  int index = 0;
-    for (int r = 0; r <= 255; r += 51) { // Step size of 51 for variety
-        for (int g = 0; g <= 255; g += 51) {
-            for (int b = 0; b <= 255; b += 51) {
-                String colorKey = r + "," + g + "," + b;
-                colorMap.put(colorKey, index++);
-            }
-        }
-    }
   stroke(0,0,0);
 }
 
@@ -100,8 +90,6 @@ void draw() {
   drawSliderPanel();
   drawScrollableColorPalette();
 }
-
-
 
 void processMatrixBoxClick() {
   if(mouseButton == RIGHT) return;
