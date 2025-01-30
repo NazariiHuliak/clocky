@@ -91,8 +91,6 @@ void draw() {
   drawScrollableColorPalette();
 }
 
-
-
 void processMatrixBoxClick() {
   if(mouseButton == RIGHT) return;
   
