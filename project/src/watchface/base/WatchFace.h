@@ -37,10 +37,10 @@ public:
     virtual void updateData() = 0;
 
     void setDigit(Position2D position2D, uint8_t digit);
-    void setColon(bool turnOn, int xOffset = 0, int yOffset = 0);
+    void setColon(bool turnOn, Position2D offsetPosition);
     void setPixel(Position2D position2D);
     void setPixel(Position2D position2D, CHSV color);
-    void setIcon(Position2D position2D, const uint8_t(&icon)[8][7]);
+    void setIcon(Position2D position2D, const uint8_t(&icon)[8][7], bool isMonotone);
 };
 
 #endif 

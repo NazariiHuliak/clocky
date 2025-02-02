@@ -6,7 +6,7 @@
 const uint8_t iconHeight = 8;
 const uint8_t iconWidth = 7;
 
-const uint8_t sun[8][7] = 
+const uint8_t sun[iconHeight][iconWidth] = 
         {{0, 0, 0, 0, 0, 0, 0}, 
         {0, 1, 1, 1, 0, 0, 0}, 
         {1, 1, 2, 1, 1, 0, 0}, 

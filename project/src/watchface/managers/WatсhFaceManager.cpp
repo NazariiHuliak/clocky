@@ -20,7 +20,8 @@ void WatchFaceManager::updateWatchFaceData() {
         lastTimeDataUpdate = currentTime;
 
         for (uint8_t i = 0; i < m_count; i++) {
-            if (currentTime - watchfaces[i]->getLastTimeDataUpdate() >= watchfaces[i]->getUpdateDataPeriod()) {
+            unsigned long lastTimeUpdate = watchfaces[i]->getLastTimeDataUpdate();
+            if (currentTime - lastTimeUpdate >= watchfaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
                 watchfaces[i]->updateData();
                 watchfaces[i]->setLastTimeDataUpdate(currentTime);
             }

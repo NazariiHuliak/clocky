@@ -1,6 +1,6 @@
 #include "MatrixUtil.h"
 
-uint16_t getMatrixIndex(uint16_t realIndex) {
+uint16_t getMatrixAbsolutePosition(uint16_t realIndex) {
     uint16_t reversedRealIndex = width * height - realIndex - 1;
 
     uint16_t rowNumber = reversedRealIndex / width;

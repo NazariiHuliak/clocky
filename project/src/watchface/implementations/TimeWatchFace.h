@@ -19,7 +19,7 @@ private:
     TimeFetcher timeFetcher;
     uint8_t* lastData[2];
 
-    // update data
+    // update
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;
 
@@ -83,14 +83,14 @@ public:
         this->setDigit(Position2D(21 + xOffset, 1 + yOffset), lastData[mode][1] % 10);
 
         if (currentModeIndex == 0) {
-            setColon(true, xOffset, yOffset);
+            setColon(true, Position2D(xOffset, yOffset));
             this->setPixel(Position2D(15 + xOffset, 5 + yOffset), CHSV(0, 0, 0));
         } else {
-            setColon(false, xOffset, yOffset);
+            setColon(false, Position2D(xOffset, yOffset));
             this->setPixel(Position2D(15 + xOffset, 5 + yOffset));
         }
 
-        setIcon(Position2D(xOffset, 0), sun);
+        setIcon(Position2D(xOffset, 0), sun, false);
     }
 
     void nextMode() override {
