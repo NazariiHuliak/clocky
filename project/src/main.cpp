@@ -12,7 +12,7 @@
 
 // Leds
 #define DATA_PIN    9
-#define LED_TYPE    WS2812
+#define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    192
 CRGB leds[NUM_LEDS];
@@ -41,28 +41,31 @@ DallasTemperature tempSensor(&oneWire);
 const uint8_t buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3 };
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 
-
 WatchFace* watchFaces[2] = {
   new TimeWatchFace(leds, clock),
   new TemperatureWatchFace(leds, tempSensor)
 };
 WatchFaceManager watchFaceManager(watchFaces, 2);
 
+
 void setup() {
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(BRIGHTNESS);
+  FastLED.setBrightness(2);
+  FastLED.setDither(0);
+  // DO NOT FORGET TO COMMENT IT
+  // clock.settime(0, 52, 0, 5, 2, 2025, 7);
 
   clock.begin(&Wire);
   tempSensor.begin();
+
   Serial.begin(9600);
 }
 
+int brightness = 0;
+unsigned long lastShowTime = 0;
 void loop() {
   if (watchFaceManager.getIsWatchFaceChangeAllowed()) {
-    watchFaceManager.updateWatchFaceData();
-
-    // tempSensor.requestTemperatures();
-    // Serial.println(tempSensor.getTempCByIndex(0));
+    watchFaceManager.updateAll();
 
     switch (buttonHandler.processButtons()) {
     case 0:

@@ -18,12 +18,12 @@ private:
     // data
     TimeFetcher timeFetcher;
     uint8_t* lastData[2];
-
+    
     // update
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;
 
-    void initiateTransitionTo(uint8_t index) override{
+    void initiateTransitionTo(uint8_t index) override {
         nextModeIndex = index;
         isTransitioning = true;
         transitionOffset = 0;

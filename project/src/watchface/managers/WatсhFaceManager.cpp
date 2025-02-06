@@ -1,6 +1,6 @@
 #include "WatchFaceManager.h"
 
-WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, uint8_t count) : watchfaces(watchFaces), m_count(count) {}
+WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, uint8_t count) : watchfaces(watchFaces), m_count(count), lightHandler(A1) {}
 
 WatchFaceManager::~WatchFaceManager() {
     for (uint8_t i = 0; i < m_count; i++) {
@@ -13,9 +13,14 @@ bool WatchFaceManager::getIsWatchFaceChangeAllowed() {
     return isWatchFaceChangeAllowed && !isTransitioning;
 }
 
-void WatchFaceManager::updateWatchFaceData() {
+void WatchFaceManager::updateAll() {
     unsigned long currentTime = millis();
 
+    updateWatchFacesData(currentTime);
+    updateBrightnessData(currentTime);
+}
+
+void WatchFaceManager::updateWatchFacesData(unsigned long currentTime) {
     if (currentTime - lastTimeDataUpdate >= checkUpdatePeriod) {
         lastTimeDataUpdate = currentTime;
 
@@ -32,11 +37,35 @@ void WatchFaceManager::updateWatchFaceData() {
     }
 }
 
+void WatchFaceManager::updateBrightnessData(unsigned long currentTime) {
+    if (currentTime - lastBrightnessCheck > checkBrightnessPeriod) {
+        lightHandler.checkBrightness();
+
+        if (lightHandler.isMeasurementsFinished()) {
+            lastBrightnessCheck = currentTime;
+            uint8_t newBrightness = lightHandler.getBrightness();
+            
+            if (currentBrightness != newBrightness) {
+                initiateBrightnessChangeTo(newBrightness);  
+            }
+        }
+    }
+}
+
+void WatchFaceManager::initiateBrightnessChangeTo(uint16_t newBrightness) {
+    isBrightnessTransitioning = true;
+    targetBrigthness = newBrightness;
+}
+
 void WatchFaceManager::showWatchFace() {
     if (isTransitioning) {
         performSlideTransition();
     } else if (watchfaces[currentWatchFace]) {
         watchfaces[currentWatchFace]->showFrame();
+    }
+
+    if (isBrightnessTransitioning) {
+        performBrightnessTransition();
     }
 }
 
@@ -78,5 +107,17 @@ void WatchFaceManager::performSlideTransition() {
         isWatchFaceChangeAllowed = true;
         transitionOffset = 0;
         currentWatchFace = nextFaceIndex;
+    }
+}
+
+void WatchFaceManager::performBrightnessTransition() {
+    unsigned long currentTime = millis();
+
+    if (currentTime - lastBrightnessChange > 20) {
+        lastBrightnessChange = currentTime;
+
+        targetBrigthness > currentBrightness ? currentBrightness++ : currentBrightness--;
+        if (currentBrightness == targetBrigthness) isBrightnessTransitioning = false;
+        FastLED.setBrightness(currentBrightness);
     }
 }

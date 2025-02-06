@@ -51,8 +51,6 @@ public:
         if (lastDataUpdate == 0) return;
 
         uint16_t tempValue = lastData * 10;
-        Serial.println(tempValue/100);
-        Serial.println(tempValue/10);
         this->setDigit(Position2D(7 + xOffset, 1), tempValue/100);
         this->setDigit(Position2D(11 + xOffset, 1), (tempValue%100)/10);
         this->setPixel(Position2D(15 + xOffset, 5));
@@ -67,7 +65,6 @@ public:
     void updateData() override {
         temperatureSensor.requestTemperatures();
         lastData = temperatureSensor.getTempCByIndex(0);
-        Serial.println(lastData);
     }
 
     void resetMode() override {}
