@@ -13,8 +13,8 @@ private:
     int index = 0;
 
     // adjustments
-    const uint16_t maxSensorValue = 200;
-    const uint16_t minSensorValue = 30;
+    const uint16_t maxSensorValue = 3000;
+    const uint16_t minSensorValue = 320;
     const uint16_t maxBrightness = 6; // from 0-255
     const uint16_t minBrightness = 2; // from 0-255
     float alpha = (maxBrightness - minBrightness) / (float) (maxSensorValue - minSensorValue);
