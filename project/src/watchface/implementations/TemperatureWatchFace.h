@@ -26,7 +26,6 @@ private:
 
     void initiateTransitionTo(uint8_t index) override {}
     void performTransition() override {}
-
 public:
     TemperatureWatchFace(CRGB* leds, DallasTemperature& tempSensor) :
         WatchFace(leds),

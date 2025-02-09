@@ -9,7 +9,7 @@
 #include <../src/resources/font/digits.h>
 #include <../src/resources/icon/weather.h>
 #include <../src/resources/icon/colors.h>
-
+#include <../src/resources/icon/watchface.h>
 
 class WatchFace {
 private:

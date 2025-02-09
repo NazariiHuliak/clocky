@@ -1,9 +1,6 @@
 #ifndef TIMEWATCHFACE_H
 #define TIMEWATCHFACE_H
 
-#include <iarduino_RTC.h>
-
-#include <../src/hardware/time/TimeFetcher.h>
 #include <../src/watchface/base/WatchFace.h>
 
 
@@ -16,8 +13,8 @@ private:
     uint8_t nextModeIndex = 0;
 
     // data
-    TimeFetcher timeFetcher;
-    uint8_t* lastData[2];
+    RtcDS1302<ThreeWire>& clock;
+    RtcDateTime now;
     
     // update
     const unsigned long updateDataPeriod = 1000; // in ms
@@ -45,14 +42,9 @@ private:
     }
 
 public:
-    TimeWatchFace(CRGB* leds, iarduino_RTC& clock) : WatchFace(leds), timeFetcher(clock) {}
+    TimeWatchFace(CRGB* leds, RtcDS1302<ThreeWire>& rtc) : WatchFace(leds), clock(rtc) {}
 
-    ~TimeWatchFace() {
-        for (uint8_t*& data : lastData) {
-            delete[] data;
-            data = nullptr;
-        }
-    }
+    ~TimeWatchFace() {}
 
     unsigned long getUpdateDataPeriod() override {
         return updateDataPeriod;
@@ -77,10 +69,13 @@ public:
     }
 
     void showFrame(uint8_t mode, int16_t xOffset = 0, int16_t yOffset = 0) {
-        this->setDigit(Position2D(7 + xOffset, 1 + yOffset), lastData[mode][0] / 10);
-        this->setDigit(Position2D(11 + xOffset, 1 + yOffset), lastData[mode][0] % 10);
-        this->setDigit(Position2D(17 + xOffset, 1 + yOffset), lastData[mode][1] / 10);
-        this->setDigit(Position2D(21 + xOffset, 1 + yOffset), lastData[mode][1] % 10);
+        uint8_t firstDigit = mode == 0 ? now.Hour() : now.Day();
+        uint8_t secondDigit = mode == 0 ? now.Minute() : now.Month();
+
+        this->setDigit(Position2D(7 + xOffset, 1 + yOffset), firstDigit / 10);
+        this->setDigit(Position2D(11 + xOffset, 1 + yOffset), firstDigit % 10);
+        this->setDigit(Position2D(17 + xOffset, 1 + yOffset), secondDigit / 10);
+        this->setDigit(Position2D(21 + xOffset, 1 + yOffset), secondDigit % 10);
 
         if (currentModeIndex == 0) {
             setColon(true, Position2D(xOffset, yOffset));
@@ -99,8 +94,7 @@ public:
     }
 
     void updateData() override {
-        lastData[0] = timeFetcher.getCurrentTime();
-        lastData[1] = timeFetcher.getCurrentDate();
+        now = clock.GetDateTime();
     }
 
     void resetMode() override {

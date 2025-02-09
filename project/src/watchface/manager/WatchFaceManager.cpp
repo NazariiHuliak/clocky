@@ -1,6 +1,6 @@
 #include "WatchFaceManager.h"
 
-WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, uint8_t count) : watchfaces(watchFaces), m_count(count), lightHandler(A1) {}
+WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, uint8_t count) : watchfaces(watchFaces), m_count(count), lightHandler(A5) {}
 
 WatchFaceManager::~WatchFaceManager() {
     for (uint8_t i = 0; i < m_count; i++) {
@@ -17,7 +17,7 @@ void WatchFaceManager::updateAll() {
     unsigned long currentTime = millis();
 
     updateWatchFacesData(currentTime);
-    updateBrightnessData(currentTime);
+    // updateBrightnessData(currentTime);
 }
 
 void WatchFaceManager::updateWatchFacesData(unsigned long currentTime) {
@@ -58,15 +58,17 @@ void WatchFaceManager::initiateBrightnessChangeTo(uint16_t newBrightness) {
 }
 
 void WatchFaceManager::showWatchFace() {
+    
+    // watchfaces[currentWatchFace]->showFrame();
     if (isTransitioning) {
         performSlideTransition();
     } else if (watchfaces[currentWatchFace]) {
         watchfaces[currentWatchFace]->showFrame();
     }
 
-    if (isBrightnessTransitioning) {
-        performBrightnessTransition();
-    }
+    // if (isBrightnessTransitioning) {
+    //     performBrightnessTransition();
+    // }
 }
 
 void WatchFaceManager::previousWatchFace() {

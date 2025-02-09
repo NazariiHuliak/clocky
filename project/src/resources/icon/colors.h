@@ -3,9 +3,11 @@
 
 #include <Arduino.h>
 
-const uint8_t colors[10][3] = 
+const uint8_t colors[10][5] = 
     {{0,0,0},
     {255,255,0},
-    {253,120,0}};
+    {253,120,0},
+    {2,145,214},
+    {120,255,255}};
 
 #endif 

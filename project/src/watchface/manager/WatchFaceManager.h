@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
-#include <iarduino_RTC.h>
 
 #include <../src/watchface/base/WatchFace.h>
 #include <../src/utils/matrix/MatrixUtil.h>

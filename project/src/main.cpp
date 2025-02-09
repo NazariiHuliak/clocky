@@ -1,17 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <iarduino_RTC.h>
 #include <FastLED.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <RtcDS1302.h>
 
-#include <../src/watchface/managers/WatchFaceManager.h>
 #include <../src/watchface/implementations/TimeWatchFace.h>
 #include <../src/watchface/implementations/TemperatureWatchFace.h>
+#include <../src/watchface/implementations/StopwatchWatchFace.h>
 #include <../src/hardware/buttons/ButtonHandler.h>
+#include <../src/watchface/manager/WatchFaceManager.h>
 
 // Leds
-#define DATA_PIN    9
+#define DATA_PIN    A5
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    192
@@ -21,48 +22,52 @@ CRGB leds[NUM_LEDS];
 #define FRAMES_PER_SECOND  60
 
 // RTC (real time clock)
-#define RST 2
-#define CLK 4
-#define DAT 3
-iarduino_RTC clock(RTC_DS1302, RST, CLK, DAT);
+#define RST 21
+#define CLK 10
+#define DAT 20
+ThreeWire myWire(DAT, CLK, RST); // IO, SCLK, CE
+RtcDS1302<ThreeWire> rtc(myWire);
 
 // DS18b20 (temperature)
-#define TEMPERATURE_PIN A2
+#define TEMPERATURE_PIN 6
 OneWire oneWire(TEMPERATURE_PIN);
 DallasTemperature tempSensor(&oneWire);
 
 // Buttons
-#define BUTTON_1 5
-#define BUTTON_2 6
-#define BUTTON_3 7
+#define BUTTON_1 A2
+#define BUTTON_2 8
+#define BUTTON_3 9
 
 #define NUM_BUTTONS 3
 
 const uint8_t buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3 };
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 
-WatchFace* watchFaces[2] = {
-  new TimeWatchFace(leds, clock),
-  new TemperatureWatchFace(leds, tempSensor)
+WatchFace* watchFaces[3] = {
+  new TimeWatchFace(leds, rtc),
+  new TemperatureWatchFace(leds, tempSensor),
+  new StopwatchWatchFace(leds)
 };
-WatchFaceManager watchFaceManager(watchFaces, 2);
-
+WatchFaceManager watchFaceManager(watchFaces, 3);
 
 void setup() {
+  // Leds
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(2);
   FastLED.setDither(0);
-  // DO NOT FORGET TO COMMENT IT
-  // clock.settime(0, 52, 0, 5, 2, 2025, 7);
 
-  clock.begin(&Wire);
+  // RTC
+  // RtcDateTime compiled = RtcDateTime("Feb 09 2025", "15:22:00");
+  rtc.Begin();
+  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+  rtc.SetDateTime(compiled);
+
+  //Temperature
   tempSensor.begin();
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
-int brightness = 0;
-unsigned long lastShowTime = 0;
 void loop() {
   if (watchFaceManager.getIsWatchFaceChangeAllowed()) {
     watchFaceManager.updateAll();
@@ -70,12 +75,15 @@ void loop() {
     switch (buttonHandler.processButtons()) {
     case 0:
       watchFaceManager.previousWatchFace();
+      Serial.println("1");
       break;
     case 1:
       watchFaceManager.nextMode();
+      Serial.println("2");
       break;
     case 2:
       watchFaceManager.nextWatchFace();
+      Serial.println("3");
       break;
     default:
       break;
