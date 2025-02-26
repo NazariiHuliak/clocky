@@ -28,13 +28,14 @@ public:
     ~WatchFace() {}
 
     virtual unsigned long getUpdateDataPeriod() = 0;
-    virtual void setLastTimeDataUpdate(unsigned long updateTime) = 0;
     virtual unsigned long getLastTimeDataUpdate() = 0;
-    virtual void resetMode() = 0;
-
+    
     virtual void showFrame(int16_t xOffset = 0) = 0;
     virtual void nextMode() = 0;
-    virtual void updateData() = 0;
+    virtual void resetMode() = 0;
+
+    virtual bool isUpdateAllowed() = 0;
+    virtual void updateData(unsigned long updateTime) = 0;
 
     void setDigit(Position2D position2D, uint8_t digit);
     void setColon(bool turnOn, Position2D offsetPosition);

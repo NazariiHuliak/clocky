@@ -15,7 +15,7 @@ private:
     // data
     RtcDS1302<ThreeWire>& clock;
     RtcDateTime now;
-    
+
     // update
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;
@@ -48,10 +48,6 @@ public:
 
     unsigned long getUpdateDataPeriod() override {
         return updateDataPeriod;
-    }
-
-    void setLastTimeDataUpdate(unsigned long updateTime) override {
-        lastDataUpdate = updateTime;
     }
 
     unsigned long getLastTimeDataUpdate() override {
@@ -93,12 +89,15 @@ public:
         initiateTransitionTo(nextModeIndex);
     }
 
-    void updateData() override {
-        now = clock.GetDateTime();
-    }
-
     void resetMode() override {
         currentModeIndex = mainMode;
+    }
+
+    bool isUpdateAllowed() override { return true; }
+
+    void updateData(unsigned long updateTime) override {
+        now = clock.GetDateTime();
+        lastDataUpdate = updateTime;
     }
 };
 

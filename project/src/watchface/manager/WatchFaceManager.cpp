@@ -14,40 +14,46 @@ bool WatchFaceManager::getIsWatchFaceChangeAllowed() {
 }
 
 void WatchFaceManager::updateAll() {
-    unsigned long currentTime = millis();
-
-    updateWatchFacesData(currentTime);
-    updateBrightnessData(currentTime);
+    updateWatchFacesData();
+    updateBrightnessData();
 }
 
-void WatchFaceManager::updateWatchFacesData(unsigned long currentTime) {
+void WatchFaceManager::updateWatchFacesData() {
+    unsigned long currentTime = millis();
+
     if (currentTime - lastTimeDataUpdate >= checkUpdatePeriod) {
         lastTimeDataUpdate = currentTime;
 
+        bool globalUpdateAllowed = isUpdateDataAllowed();
         for (uint8_t i = 0; i < m_count; i++) {
+            if (i != currentWatchFace) {
+                watchfaces[i]->resetMode();
+                if (!globalUpdateAllowed) continue;
+            }
+
             unsigned long lastTimeUpdate = watchfaces[i]->getLastTimeDataUpdate();
             if (currentTime - lastTimeUpdate >= watchfaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
-                watchfaces[i]->updateData();
-                watchfaces[i]->setLastTimeDataUpdate(currentTime);
+                watchfaces[i]->updateData(currentTime);
             }
-            if (currentWatchFace != i) {
+            if (i != currentWatchFace) {
                 watchfaces[i]->resetMode();
             }
         }
     }
 }
 
-void WatchFaceManager::updateBrightnessData(unsigned long currentTime) {
+void WatchFaceManager::updateBrightnessData() {
+    unsigned long currentTime = millis();
+
     if (currentTime - lastBrightnessCheck > checkBrightnessPeriod) {
         lightHandler.checkBrightness();
 
         if (lightHandler.isMeasurementsFinished()) {
             lastBrightnessCheck = currentTime;
             uint8_t newBrightness = lightHandler.getBrightness();
-            Serial.println(newBrightness);
-            
+
             if (currentBrightness != newBrightness) {
-                initiateBrightnessChangeTo(newBrightness);  
+                initiateBrightnessChangeTo(newBrightness);
             }
         }
     }
@@ -86,6 +92,10 @@ void WatchFaceManager::nextWatchFace() {
     initiateTransition(true);
 }
 
+void WatchFaceManager::resetCurrentWatchFace() {
+    watchfaces[currentWatchFace]->resetMode();
+}
+
 void WatchFaceManager::initiateTransition(bool direction) {
     isTransitioning = true;
     transitionOffset = 0;
@@ -121,4 +131,12 @@ void WatchFaceManager::performBrightnessTransition() {
         if (currentBrightness == targetBrigthness) isBrightnessTransitioning = false;
         FastLED.setBrightness(currentBrightness);
     }
+}
+
+bool WatchFaceManager::isUpdateDataAllowed() {
+    for (uint8_t i = 0; i < m_count; i++) {
+        if (!watchfaces[i]->isUpdateAllowed()) return false;
+    }
+
+    return true;
 }

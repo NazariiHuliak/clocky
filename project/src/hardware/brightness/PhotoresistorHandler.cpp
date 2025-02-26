@@ -29,7 +29,6 @@ void PhotoresistorHandler::checkBrightness() {
         lastReadTime = currentTime;
 
         int rawValue = analogRead(pin);
-        Serial.print("Raw value: "); Serial.println(rawValue);
         
         rawData[index] = rawValue;
         index = (index + 1) % size;

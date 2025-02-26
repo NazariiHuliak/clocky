@@ -12,9 +12,9 @@ class TemperatureWatchFace : public WatchFace {
 private:
     // modes 
     const uint8_t numModes = 1;
-    const uint8_t mainMode = 0;
-    uint8_t currentModeIndex = 0;
-    uint8_t nextModeIndex = 0;
+    // const uint8_t mainMode = 0; // to delete
+    // uint8_t currentModeIndex = 0;
+    // uint8_t nextModeIndex = 0;
 
     // data
     DallasTemperature& temperatureSensor;
@@ -38,10 +38,6 @@ public:
         return updateDataPeriod;
     }
 
-    void setLastTimeDataUpdate(unsigned long updateTime) override {
-        lastDataUpdate = updateTime;
-    }
-
     unsigned long getLastTimeDataUpdate() override {
         return lastDataUpdate;
     }
@@ -50,23 +46,28 @@ public:
         if (lastDataUpdate == 0) return;
 
         uint16_t tempValue = lastData * 10;
-        this->setDigit(Position2D(7 + xOffset, 1), tempValue/100);
-        this->setDigit(Position2D(11 + xOffset, 1), (tempValue%100)/10);
+        this->setDigit(Position2D(7 + xOffset, 1), tempValue / 100);
+        this->setDigit(Position2D(11 + xOffset, 1), (tempValue % 100) / 10);
         this->setPixel(Position2D(15 + xOffset, 5));
-        this->setDigit(Position2D(17 + xOffset, 1), tempValue%10);
+        this->setDigit(Position2D(17 + xOffset, 1), tempValue % 10);
 
         setIcon(Position2D(xOffset, 0), sun, false); // Should be change to appropriate
         setIcon(Position2D(21 + xOffset, 2), celsiusSignSmall, true);
     }
 
+    //TODO: Showing humidity. Change the temperature sensor to DHT** to have the humidity as well.
     void nextMode() override {}
 
-    void updateData() override {
+    void resetMode() override {}
+
+    bool isUpdateAllowed() override { return true; }
+
+    void updateData(unsigned long updateTime) override {
         temperatureSensor.requestTemperatures();
         lastData = temperatureSensor.getTempCByIndex(0);
-    }
 
-    void resetMode() override {}
+        lastDataUpdate = updateTime;
+    }
 };
 
 #endif

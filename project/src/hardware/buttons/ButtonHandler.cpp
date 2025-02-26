@@ -6,7 +6,7 @@ ButtonHandler::ButtonHandler(const uint8_t* buttonPins, uint8_t buttonCount, uns
     for (uint8_t i = 0; i < buttonCount; i++) {
         pinMode(buttonPins[i], INPUT);
         digitalWrite(buttonPins[i], HIGH);
-        buttons[i] = { buttonPins[i], 0, false };
+        buttons[i] = { buttonPins[i], 0, false, false };
     }
 }
 
@@ -14,26 +14,53 @@ ButtonHandler::~ButtonHandler() {
     delete[] buttons;
 }
 
-uint8_t ButtonHandler::processButtons() {
-    unsigned long currentTime = millis();
+bool ButtonHandler::shouldUpdate(unsigned long currentTime) {
     if (currentTime - lastTimeChecked >= checkPeriod) {
         lastTimeChecked = currentTime;
+        return true;
+    }
 
-        for (uint8_t i = 0; i < buttonCount; i++) {
-            int currentState = digitalRead(buttons[i].pin);
+    return false;
+}
 
-            if (!currentState && !buttons[i].stateChanged) {
-                buttons[i].stateChanged = true;
+/*
+    returns:
+    0: nothing clicked
+    i + 1: button_i was clicked
+    buttonCount + i + 1: button_i was pressed for 1 second
+*/
+uint8_t ButtonHandler::processButtons() {
+    unsigned long currentTime = millis();
+    if (!shouldUpdate(currentTime)) return 0;
 
-                return i;
-            } else if (currentState && buttons[i].stateChanged) {
-                if (currentTime - buttons[i].lastClickedTime >= clickPeriod) {
-                    buttons[i].lastClickedTime = currentTime;
-                    buttons[i].stateChanged = false;
+    for (uint8_t i = 0; i < buttonCount; i++) {
+        bool pressed = !((bool)digitalRead(buttons[i].pin));
+        unsigned long timePeriod = currentTime - buttons[i].pressStartTime;
+
+        if (pressed) {
+            if (!buttons[i].wasClicked && timePeriod >= clickPeriod) {
+                buttons[i].wasClicked = true;
+                buttons[i].pressStartTime = currentTime;
+            } else {
+                if (!buttons[i].wasHolded && timePeriod >= HOLD_TIME_THRESHOLD) {
+                    buttons[i].wasHolded = true;
+
+                    return buttonCount + i + 1;
+                }
+            }
+        } else {
+            if (buttons[i].wasClicked) {
+                buttons[i].wasClicked = false;
+                if (!buttons[i].wasHolded) {
+                    buttons[i].pressStartTime = currentTime;
+
+                    return i + 1;
+                } else {
+                    buttons[i].wasHolded = false;
                 }
             }
         }
     }
 
-    return -1;
+    return 0;
 }

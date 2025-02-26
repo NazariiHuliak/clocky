@@ -57,10 +57,10 @@ void setup() {
   FastLED.setDither(0);
 
   // RTC
-  // RtcDateTime compiled = RtcDateTime("Feb 09 2025", "15:22:00");
+  // RtcDateTime compiled = RtcDateTime("Feb 10 2025", "18:17:00");
   rtc.Begin();
-  RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-  rtc.SetDateTime(compiled);
+  // RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+  // rtc.SetDateTime(compiled);
 
   //Temperature
   tempSensor.begin();
@@ -70,21 +70,18 @@ void setup() {
 
 void loop() {
   if (watchFaceManager.getIsWatchFaceChangeAllowed()) {
-    watchFaceManager.updateAll();
-
     switch (buttonHandler.processButtons()) {
-    case 0:
-      watchFaceManager.previousWatchFace();
-      Serial.println("1");
-      break;
     case 1:
-      watchFaceManager.nextMode();
-      Serial.println("2");
+      watchFaceManager.previousWatchFace();
       break;
     case 2:
-      watchFaceManager.nextWatchFace();
-      Serial.println("3");
+      watchFaceManager.nextMode();
       break;
+    case 3:
+      watchFaceManager.nextWatchFace();
+      break;
+    case 5:
+      watchFaceManager.resetCurrentWatchFace();
     default:
       break;
     }
@@ -94,4 +91,6 @@ void loop() {
     watchFaceManager.showWatchFace();
     FastLED.show();
   }
+
+  watchFaceManager.updateAll();
 }

@@ -7,8 +7,9 @@ class ButtonHandler {
 private:
     struct ButtonState {
         uint8_t pin;
-        unsigned long lastClickedTime;
-        bool stateChanged;
+        unsigned long pressStartTime;
+        bool wasClicked;
+        bool wasHolded;
     };
 
     ButtonState* buttons;
@@ -16,6 +17,10 @@ private:
     unsigned long checkPeriod;
     unsigned long clickPeriod;
     unsigned long lastTimeChecked;
+
+    static const unsigned long HOLD_TIME_THRESHOLD = 1000; 
+
+    bool shouldUpdate(unsigned long currentTime);
 
 public:
     ButtonHandler(const uint8_t* buttonPins, uint8_t buttonCount, unsigned long checkPeriod = 100, unsigned long clickPeriod = 500);

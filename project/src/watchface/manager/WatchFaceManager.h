@@ -12,11 +12,11 @@ class WatchFaceManager {
 private:
     WatchFace** watchfaces;
     uint8_t m_count;
-    uint8_t currentWatchFace = 0;
+    uint8_t currentWatchFace = 2;
 
     bool isWatchFaceChangeAllowed = true;
 
-    // data update
+    // check data update
     unsigned long lastTimeDataUpdate = 0;
     unsigned long checkUpdatePeriod = 100;
 
@@ -30,6 +30,7 @@ private:
     bool isBrightnessTransitioning = false;
     unsigned long lastBrightnessChange = 0;
 
+    // transitions
     int8_t transitionOffset = 0;
     bool isTransitioning = false;
     bool transitionDirection = false;
@@ -39,6 +40,8 @@ private:
 
     void initiateBrightnessChangeTo(uint16_t newBrightness);
     void performBrightnessTransition();
+
+    bool isUpdateDataAllowed();
 public:
     WatchFaceManager(WatchFace** watchFaces, uint8_t count);
     ~WatchFaceManager();
@@ -46,13 +49,14 @@ public:
     bool getIsWatchFaceChangeAllowed();
 
     void updateAll();
-    void updateWatchFacesData(unsigned long currentTime);
-    void updateBrightnessData(unsigned long currentTime);
+    void updateWatchFacesData();
+    void updateBrightnessData();
 
     void showWatchFace();
     void previousWatchFace();
     void nextMode();
     void nextWatchFace();
+    void resetCurrentWatchFace();
 };
 
 #endif
