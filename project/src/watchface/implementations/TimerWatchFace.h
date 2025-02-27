@@ -1,44 +1,52 @@
-#ifndef STOPWATCHEWATCHFACE_H
-#define STOPWATCHEWATCHFACE_H
+#ifndef TIMERWATCHFACE_H
+#define TIMERWATCHFACE_H
 
 #include <../src/watchface/core/WatchFace.h>
+#include <../src/watchface/core/transition/Transitionable.h>
+#include <../src/hardware/buttons/ButtonHandler.h>
 
 
-class StopwatchWatchFace : public WatchFace {
+class TimerWatchFace : public WatchFace, public Transitionable {
 private:
-    // update
-    const unsigned long updateDataPeriod = 1000; // in ms
-    unsigned long lastDataUpdate = 0;
-
-    uint8_t minutes = 0;
-    uint8_t seconds = 0;
-
     /**
      * Modes:
-     * 0) show zeros
-     * 1) time from start stopwatch
+     * 0) show initial time
+     * 1) countdown
      * 2) paused
-    */
+     */
     const uint8_t numModes = 3;
     uint8_t currentMode = 0;
-
     bool displayTime = true;
 
-    void incrementTime() {
-        if (seconds + 1 > 59) {
-            if (minutes + 1 > 99) {
-                currentMode = 2;
+    //data
+    uint8_t minutes = 10;
+    uint8_t seconds = 0;
+    ButtonHandler& buttonHandler;
+    uint8_t commonTimers[4] = {5, 10, 20, 40};
+
+    // update
+    const unsigned long updateDataPeriod = 1000; 
+    unsigned long lastDataUpdate = 0;
+
+    void initiateTransition(uint8_t index) override {}
+    void performTransition() override {}
+
+    void decrementTime() {
+        if (seconds == 0) {
+            if (minutes == 0) {
+                currentMode = 2; // Pause when countdown reaches 0
             } else {
-                minutes++;
+                minutes--;
+                seconds = 59;
             }
-            seconds = 0;
         } else {
-            seconds++;
+            seconds--;
         }
     }
 public:
-    StopwatchWatchFace(CRGB* leds) : WatchFace(leds) {}
-    ~StopwatchWatchFace() {}
+    TimerWatchFace(CRGB* leds, ButtonHandler& buttons) : WatchFace(leds), buttonHandler(buttons) {}
+    
+    ~TimerWatchFace() {}
 
     unsigned long getUpdateDataPeriod() override {
         return updateDataPeriod;
@@ -51,7 +59,7 @@ public:
     void showFrame(int16_t xOffset = 0) override {
         if (currentMode == 2 && !displayTime) {
             FastLED.clear();
-            setIcon(Position2D(xOffset, 0), stopwatch, false);
+            setIcon(Position2D(xOffset, 0), timer, false);
             return;
         }
 
@@ -61,7 +69,7 @@ public:
         this->setDigit(Position2D(21 + xOffset, 1), seconds % 10);
 
         setColon(true, Position2D(xOffset, 0));
-        setIcon(Position2D(xOffset, 0), stopwatch, false);
+        setIcon(Position2D(xOffset, 0), timer, false);
     }
 
     void nextMode() override {
@@ -70,8 +78,7 @@ public:
 
     void resetMode() override {
         currentMode = 0;
-        minutes = 0;
-        seconds = 0;
+        displayTime = true;
     }
 
     bool isUpdateAllowed() override {
@@ -85,7 +92,7 @@ public:
             return;
         } else if (currentMode == 0) return;
 
-        incrementTime();
+        decrementTime();
     }
 };
 

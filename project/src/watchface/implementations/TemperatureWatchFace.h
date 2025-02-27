@@ -4,7 +4,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#include <../src/watchface/base/WatchFace.h>
+#include <../src/watchface/core/WatchFace.h>
 #include <../src/resources/icon/signs.h>
 
 
@@ -12,9 +12,6 @@ class TemperatureWatchFace : public WatchFace {
 private:
     // modes 
     const uint8_t numModes = 1;
-    // const uint8_t mainMode = 0; // to delete
-    // uint8_t currentModeIndex = 0;
-    // uint8_t nextModeIndex = 0;
 
     // data
     DallasTemperature& temperatureSensor;
@@ -24,8 +21,6 @@ private:
     const unsigned long updateDataPeriod = 10000; // in ms
     unsigned long lastDataUpdate = 0;
 
-    void initiateTransitionTo(uint8_t index) override {}
-    void performTransition() override {}
 public:
     TemperatureWatchFace(CRGB* leds, DallasTemperature& tempSensor) :
         WatchFace(leds),
@@ -43,8 +38,6 @@ public:
     }
 
     void showFrame(int16_t xOffset = 0) override {
-        if (lastDataUpdate == 0) return;
-
         uint16_t tempValue = lastData * 10;
         this->setDigit(Position2D(7 + xOffset, 1), tempValue / 100);
         this->setDigit(Position2D(11 + xOffset, 1), (tempValue % 100) / 10);
@@ -63,10 +56,11 @@ public:
     bool isUpdateAllowed() override { return true; }
 
     void updateData(unsigned long updateTime) override {
+        lastDataUpdate = updateTime;
+        Serial.println("Temperature updated");
+
         temperatureSensor.requestTemperatures();
         lastData = temperatureSensor.getTempCByIndex(0);
-
-        lastDataUpdate = updateTime;
     }
 };
 

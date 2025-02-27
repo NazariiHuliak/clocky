@@ -8,6 +8,8 @@
 #include <../src/watchface/implementations/TimeWatchFace.h>
 #include <../src/watchface/implementations/TemperatureWatchFace.h>
 #include <../src/watchface/implementations/StopwatchWatchFace.h>
+#include <../src/watchface/implementations/TimerWatchFace.h>
+
 #include <../src/hardware/buttons/ButtonHandler.h>
 #include <../src/watchface/manager/WatchFaceManager.h>
 
@@ -43,12 +45,14 @@ DallasTemperature tempSensor(&oneWire);
 const uint8_t buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3 };
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 
-WatchFace* watchFaces[3] = {
+WatchFace* watchFaces[4] = {
   new TimeWatchFace(leds, rtc),
   new TemperatureWatchFace(leds, tempSensor),
-  new StopwatchWatchFace(leds)
+  new StopwatchWatchFace(leds),
+  new TimerWatchFace(leds, buttonHandler)
 };
-WatchFaceManager watchFaceManager(watchFaces, 3);
+WatchFaceManager watchFaceManager(watchFaces, 4);
+
 
 void setup() {
   // Leds

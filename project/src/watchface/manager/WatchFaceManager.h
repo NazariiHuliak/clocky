@@ -4,15 +4,17 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-#include <../src/watchface/base/WatchFace.h>
+#include <../src/watchface/core/WatchFace.h>
+#include <../src/watchface/core/transition/TransitionableWithDirection.h>
 #include <../src/utils/matrix/MatrixUtil.h>
 #include <../src/hardware/brightness/PhotoresistorHandler.h>
 
-class WatchFaceManager {
+
+class WatchFaceManager : public TransitionableWithDirection {
 private:
     WatchFace** watchfaces;
     uint8_t m_count;
-    uint8_t currentWatchFace = 2;
+    uint8_t currentWatchFace = 0;
 
     bool isWatchFaceChangeAllowed = true;
 
@@ -30,14 +32,6 @@ private:
     bool isBrightnessTransitioning = false;
     unsigned long lastBrightnessChange = 0;
 
-    // transitions
-    int8_t transitionOffset = 0;
-    bool isTransitioning = false;
-    bool transitionDirection = false;
-
-    void initiateTransition(bool direction);
-    void performSlideTransition();
-
     void initiateBrightnessChangeTo(uint16_t newBrightness);
     void performBrightnessTransition();
 
@@ -47,7 +41,6 @@ public:
     ~WatchFaceManager();
 
     bool getIsWatchFaceChangeAllowed();
-
     void updateAll();
     void updateWatchFacesData();
     void updateBrightnessData();
@@ -57,6 +50,9 @@ public:
     void nextMode();
     void nextWatchFace();
     void resetCurrentWatchFace();
+
+    void initiateTransition(bool direction) override;
+    void performTransition() override;
 };
 
 #endif

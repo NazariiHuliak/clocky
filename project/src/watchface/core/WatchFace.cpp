@@ -1,5 +1,6 @@
 #include "WatchFace.h"
 
+
 void WatchFace::setDigit(Position2D position2D, uint8_t digit) {
     for (uint8_t row = 0; row < 5; row++) {
         byte rowData = numbers[digit][row];

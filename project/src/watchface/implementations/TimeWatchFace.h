@@ -1,16 +1,16 @@
 #ifndef TIMEWATCHFACE_H
 #define TIMEWATCHFACE_H
 
-#include <../src/watchface/base/WatchFace.h>
+#include <../src/watchface/core/WatchFace.h>
+#include <../src/watchface/core/transition/Transitionable.h>
 
 
-class TimeWatchFace : public WatchFace {
+class TimeWatchFace : public WatchFace, public Transitionable {
 private:
     // modes 
     const uint8_t numModes = 2;
     const uint8_t mainMode = 0;
     uint8_t currentModeIndex = 0;
-    uint8_t nextModeIndex = 0;
 
     // data
     RtcDS1302<ThreeWire>& clock;
@@ -20,8 +20,8 @@ private:
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;
 
-    void initiateTransitionTo(uint8_t index) override {
-        nextModeIndex = index;
+    void initiateTransition(uint8_t index) override {
+        nextIndex = index;
         isTransitioning = true;
         transitionOffset = 0;
     }
@@ -30,14 +30,14 @@ private:
         FastLED.clear();
 
         showFrame(currentModeIndex, 0, -transitionOffset);
-        showFrame(nextModeIndex, 0, -height - transitionOffset);
+        showFrame(nextIndex, 0, -height - transitionOffset);
 
         transitionOffset -= 1;
 
         if (transitionOffset < -height) {
             isTransitioning = false;
             transitionOffset = 0;
-            currentModeIndex = nextModeIndex;
+            currentModeIndex = nextIndex;
         }
     }
 
@@ -86,7 +86,7 @@ public:
 
     void nextMode() override {
         uint8_t nextModeIndex = (currentModeIndex + 1) % numModes;
-        initiateTransitionTo(nextModeIndex);
+        initiateTransition(nextModeIndex);
     }
 
     void resetMode() override {

@@ -11,17 +11,11 @@
 #include <../src/resources/icon/colors.h>
 #include <../src/resources/icon/watchface.h>
 
+
 class WatchFace {
 private:
     CHSV digitColor{ 0, 0, 255 };
     CRGB* leds;
-
-    virtual void initiateTransitionTo(uint8_t nextModeIndex) = 0;
-    virtual void performTransition() = 0;
-
-protected:
-    bool isTransitioning = false;
-    int8_t transitionOffset = 0;
 
 public:
     WatchFace(CRGB* leds) : leds(leds) {}
@@ -29,7 +23,7 @@ public:
 
     virtual unsigned long getUpdateDataPeriod() = 0;
     virtual unsigned long getLastTimeDataUpdate() = 0;
-    
+
     virtual void showFrame(int16_t xOffset = 0) = 0;
     virtual void nextMode() = 0;
     virtual void resetMode() = 0;
@@ -44,4 +38,4 @@ public:
     void setIcon(Position2D position2D, const uint8_t(&icon)[8][7], bool isMonotone);
 };
 
-#endif 
+#endif // WATCHFACE_H
