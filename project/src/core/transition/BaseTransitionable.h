@@ -10,8 +10,8 @@ public:
     
 protected:
     bool isTransitioning = false;
-    int8_t transitionOffset = 0;
-    uint8_t nextIndex = 0;
+    int16_t transitionOffset = 0;
+    uint8_t nextValue = 0;
 };
 
-#endif // BASE_TRANSITIONABLE_H
+#endif

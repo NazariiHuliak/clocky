@@ -2,7 +2,7 @@
 #define TIMERWATCHFACE_H
 
 #include <../src/watchface/core/WatchFace.h>
-#include <../src/watchface/core/transition/Transitionable.h>
+#include <../src/core/transition/Transitionable.h>
 #include <../src/hardware/buttons/ButtonHandler.h>
 
 
@@ -25,7 +25,7 @@ private:
     uint8_t commonTimers[4] = {5, 10, 20, 40};
 
     // update
-    const unsigned long updateDataPeriod = 1000; 
+    const unsigned long updateDataPeriod = 1000;
     unsigned long lastDataUpdate = 0;
 
     void initiateTransition(uint8_t index) override {}
@@ -45,7 +45,7 @@ private:
     }
 public:
     TimerWatchFace(CRGB* leds, ButtonHandler& buttons) : WatchFace(leds), buttonHandler(buttons) {}
-    
+
     ~TimerWatchFace() {}
 
     unsigned long getUpdateDataPeriod() override {

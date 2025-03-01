@@ -1,8 +1,10 @@
 #ifndef TIMEWATCHFACE_H
 #define TIMEWATCHFACE_H
 
+#include <RtcDS1302.h>
+
 #include <../src/watchface/core/WatchFace.h>
-#include <../src/watchface/core/transition/Transitionable.h>
+#include <../src/core/transition/Transitionable.h>
 
 
 class TimeWatchFace : public WatchFace, public Transitionable {
@@ -21,7 +23,7 @@ private:
     unsigned long lastDataUpdate = 0;
 
     void initiateTransition(uint8_t index) override {
-        nextIndex = index;
+        nextValue = index;
         isTransitioning = true;
         transitionOffset = 0;
     }
@@ -30,14 +32,14 @@ private:
         FastLED.clear();
 
         showFrame(currentModeIndex, 0, -transitionOffset);
-        showFrame(nextIndex, 0, -height - transitionOffset);
+        showFrame(nextValue, 0, -height - transitionOffset);
 
         transitionOffset -= 1;
 
         if (transitionOffset < -height) {
             isTransitioning = false;
             transitionOffset = 0;
-            currentModeIndex = nextIndex;
+            currentModeIndex = nextValue;
         }
     }
 

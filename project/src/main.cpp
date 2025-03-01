@@ -5,13 +5,14 @@
 #include <DallasTemperature.h>
 #include <RtcDS1302.h>
 
-#include <../src/watchface/implementations/TimeWatchFace.h>
-#include <../src/watchface/implementations/TemperatureWatchFace.h>
-#include <../src/watchface/implementations/StopwatchWatchFace.h>
-#include <../src/watchface/implementations/TimerWatchFace.h>
+#include <../src/watchface/manager/WatchFaceManager.h>
+#include <../src/watchface/feature/TimeWatchFace.h>
+#include <../src/watchface/feature/TemperatureWatchFace.h>
+#include <../src/watchface/feature/StopwatchWatchFace.h>
+#include <../src/watchface/feature/TimerWatchFace.h>
 
 #include <../src/hardware/buttons/ButtonHandler.h>
-#include <../src/watchface/manager/WatchFaceManager.h>
+#include <hardware/brightness/BrightnessHandler.h>
 
 // Leds
 #define DATA_PIN    A5
@@ -44,6 +45,7 @@ DallasTemperature tempSensor(&oneWire);
 
 const uint8_t buttonPins[] = { BUTTON_1, BUTTON_2, BUTTON_3 };
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
+BrightnessHandler brightnessHandler(A0);
 
 WatchFace* watchFaces[4] = {
   new TimeWatchFace(leds, rtc),
@@ -61,8 +63,8 @@ void setup() {
   FastLED.setDither(0);
 
   // RTC
-  // RtcDateTime compiled = RtcDateTime("Feb 10 2025", "18:17:00");
   rtc.Begin();
+  // RtcDateTime compiled = RtcDateTime("Feb 10 2025", "18:17:00");
   // RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   // rtc.SetDateTime(compiled);
 
@@ -96,5 +98,6 @@ void loop() {
     FastLED.show();
   }
 
-  watchFaceManager.updateAll();
+  watchFaceManager.update();
+  brightnessHandler.update();
 }

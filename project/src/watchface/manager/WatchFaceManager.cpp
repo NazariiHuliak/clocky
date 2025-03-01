@@ -1,57 +1,39 @@
 #include "WatchFaceManager.h"
+#include <utils/matrix/MatrixUtil.h>
 
-
-WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, uint8_t count) : watchfaces(watchFaces), m_count(count), lightHandler(A0) {}
+WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, const uint8_t count) : watchFaces(watchFaces), m_count(count) {}
 
 WatchFaceManager::~WatchFaceManager() {
     for (uint8_t i = 0; i < m_count; i++) {
-        delete watchfaces[i];
+        delete watchFaces[i];
     }
-    delete[] watchfaces;
+    delete[] watchFaces;
 }
 
-bool WatchFaceManager::getIsWatchFaceChangeAllowed() {
+bool WatchFaceManager::getIsWatchFaceChangeAllowed() const {
     return isWatchFaceChangeAllowed && !isTransitioning;
 }
 
-void WatchFaceManager::updateAll() {
+void WatchFaceManager::update() {
     updateWatchFacesData();
-    updateBrightnessData();
 }
 
 void WatchFaceManager::updateWatchFacesData() {
-    unsigned long currentTime = millis();
+    const unsigned long currentTime = millis();
 
     if (currentTime - lastTimeDataUpdate >= checkUpdatePeriod) {
         lastTimeDataUpdate = currentTime;
-        
-        bool globalUpdateAllowed = isUpdateDataAllowed();
+
+        const bool globalUpdateAllowed = isUpdateDataAllowed();
         for (uint8_t i = 0; i < m_count; i++) {
             if (i != currentWatchFace) {
-                watchfaces[i]->resetMode();
+                watchFaces[i]->resetMode();
                 if (!globalUpdateAllowed) continue;
             }
 
-            unsigned long lastTimeUpdate = watchfaces[i]->getLastTimeDataUpdate();
-            if (currentTime - lastTimeUpdate >= watchfaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
-                watchfaces[i]->updateData(currentTime);
-            }
-        }
-    }
-}
-
-void WatchFaceManager::updateBrightnessData() {
-    unsigned long currentTime = millis();
-
-    if (currentTime - lastBrightnessCheck > checkBrightnessPeriod) {
-        lightHandler.checkBrightness();
-
-        if (lightHandler.isMeasurementsFinished()) {
-            lastBrightnessCheck = currentTime;
-            uint8_t newBrightness = lightHandler.getBrightness();
-
-            if (currentBrightness != newBrightness) {
-                initiateBrightnessChangeTo(newBrightness);
+            const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
+            if (currentTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
+                watchFaces[i]->updateData(currentTime);
             }
         }
     }
@@ -60,12 +42,8 @@ void WatchFaceManager::updateBrightnessData() {
 void WatchFaceManager::showWatchFace() {
     if (isTransitioning) {
         performTransition();
-    } else if (watchfaces[currentWatchFace]) {
-        watchfaces[currentWatchFace]->showFrame();
-    }
-
-    if (isBrightnessTransitioning) {
-        performBrightnessTransition();
+    } else if (watchFaces[currentWatchFace]) {
+        watchFaces[currentWatchFace]->showFrame();
     }
 }
 
@@ -75,8 +53,8 @@ void WatchFaceManager::previousWatchFace() {
     initiateTransition(false);
 }
 
-void WatchFaceManager::nextMode() {
-    watchfaces[currentWatchFace]->nextMode();
+void WatchFaceManager::nextMode() const {
+    watchFaces[currentWatchFace]->nextMode();
 }
 
 void WatchFaceManager::nextWatchFace() {
@@ -85,39 +63,22 @@ void WatchFaceManager::nextWatchFace() {
     initiateTransition(true);
 }
 
-void WatchFaceManager::resetCurrentWatchFace() {
-    watchfaces[currentWatchFace]->resetMode();
+void WatchFaceManager::resetCurrentWatchFace() const {
+    watchFaces[currentWatchFace]->resetMode();
 }
 
-void WatchFaceManager::initiateBrightnessChangeTo(uint16_t newBrightness) {
-    isBrightnessTransitioning = true;
-    targetBrigthness = newBrightness;
-}
-
-void WatchFaceManager::performBrightnessTransition() {
-    unsigned long currentTime = millis();
-
-    if (currentTime - lastBrightnessChange > 20) {
-        lastBrightnessChange = currentTime;
-
-        targetBrigthness > currentBrightness ? currentBrightness++ : currentBrightness--;
-        if (currentBrightness == targetBrigthness) isBrightnessTransitioning = false;
-        FastLED.setBrightness(currentBrightness);
-    }
-}
-
-bool WatchFaceManager::isUpdateDataAllowed() {
+bool WatchFaceManager::isUpdateDataAllowed() const {
     for (uint8_t i = 0; i < m_count; i++) {
-        if (!watchfaces[i]->isUpdateAllowed()) return false;
+        if (!watchFaces[i]->isUpdateAllowed()) return false;
     }
 
     return true;
 }
 
-void WatchFaceManager::initiateTransition(bool direction) {
+void WatchFaceManager::initiateTransition(const bool direction) {
     isTransitioning = true;
     transitionOffset = 0;
-    nextIndex = (currentWatchFace + (direction ? 1 : m_count - 1)) % m_count;
+    nextValue = (currentWatchFace + (direction ? 1 : m_count - 1)) % m_count;
     transitionDirection = direction;
 
     isWatchFaceChangeAllowed = false;
@@ -126,8 +87,8 @@ void WatchFaceManager::initiateTransition(bool direction) {
 void WatchFaceManager::performTransition() {
     FastLED.clear();
 
-    watchfaces[currentWatchFace]->showFrame(-transitionOffset);
-    watchfaces[nextIndex]->showFrame(transitionDirection ? width - transitionOffset : -width - transitionOffset);
+    watchFaces[currentWatchFace]->showFrame(-transitionOffset);
+    watchFaces[nextValue]->showFrame(transitionDirection ? width - transitionOffset : -width - transitionOffset);
 
     transitionOffset += transitionDirection ? 1 : -1;
 
@@ -136,6 +97,6 @@ void WatchFaceManager::performTransition() {
         transitionOffset = 0;
 
         isWatchFaceChangeAllowed = true;
-        currentWatchFace = nextIndex;
+        currentWatchFace = nextValue;
     }
 }

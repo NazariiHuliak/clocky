@@ -1,12 +1,17 @@
 #include "ButtonHandler.h"
 
-ButtonHandler::ButtonHandler(const uint8_t* buttonPins, uint8_t buttonCount, unsigned long checkPeriod, unsigned long clickPeriod)
+
+ButtonHandler::ButtonHandler(
+    const uint8_t *buttonPins,
+    const uint8_t buttonCount,
+    const unsigned long checkPeriod,
+    const unsigned long clickPeriod)
     : buttonCount(buttonCount), checkPeriod(checkPeriod), clickPeriod(clickPeriod), lastTimeChecked(0) {
     buttons = new ButtonState[buttonCount];
     for (uint8_t i = 0; i < buttonCount; i++) {
         pinMode(buttonPins[i], INPUT);
         digitalWrite(buttonPins[i], HIGH);
-        buttons[i] = { buttonPins[i], 0, false, false };
+        buttons[i] = {buttonPins[i], 0, false, false};
     }
 }
 
@@ -23,9 +28,8 @@ bool ButtonHandler::shouldUpdate(unsigned long currentTime) {
     return false;
 }
 
-/*
-    returns:
-    0: nothing clicked
+/**
+    @return 0: nothing clicked
     i + 1: button_i was clicked
     buttonCount + i + 1: button_i was pressed for 1 second
 */
@@ -34,7 +38,7 @@ uint8_t ButtonHandler::processButtons() {
     if (!shouldUpdate(currentTime)) return 0;
 
     for (uint8_t i = 0; i < buttonCount; i++) {
-        bool pressed = !((bool)digitalRead(buttons[i].pin));
+        bool pressed = !static_cast<bool>(digitalRead(buttons[i].pin));
         unsigned long timePeriod = currentTime - buttons[i].pressStartTime;
 
         if (pressed) {

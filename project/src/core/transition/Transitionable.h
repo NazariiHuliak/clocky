@@ -5,7 +5,7 @@
 
 class Transitionable : public BaseTransitionable {
 public:
-    virtual void initiateTransition(uint8_t nextIndex) = 0;
+    virtual void initiateTransition(uint8_t nextValue_) = 0;
 };
 
-#endif // TRANSITIONABLE_H
+#endif

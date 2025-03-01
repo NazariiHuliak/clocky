@@ -1,7 +1,12 @@
 #include "WatchFace.h"
 
+#include <../src/utils/matrix/MatrixUtil.h>
+#include <../src/resources/font/digits.h>
+#include <../src/resources/icon/weather.h>
+#include <../src/resources/icon/colors.h>
 
-void WatchFace::setDigit(Position2D position2D, uint8_t digit) {
+
+void WatchFace::setDigit(Position2D position2D, uint8_t digit) const {
     for (uint8_t row = 0; row < 5; row++) {
         byte rowData = numbers[digit][row];
 
@@ -20,7 +25,7 @@ void WatchFace::setDigit(Position2D position2D, uint8_t digit) {
     }
 }
 
-void WatchFace::setColon(bool turnOn, Position2D offsetPosition) {
+void WatchFace::setColon(bool turnOn, Position2D offsetPosition) const {
     if (turnOn) {
         setPixel(Position2D(15 + offsetPosition.getX(), 2 + offsetPosition.getY()));
         setPixel(Position2D(15 + offsetPosition.getX(), 4 + offsetPosition.getY()));
@@ -30,18 +35,18 @@ void WatchFace::setColon(bool turnOn, Position2D offsetPosition) {
     }
 }
 
-void WatchFace::setPixel(Position2D position2D) {
+void WatchFace::setPixel(Position2D position2D) const {
     setPixel(position2D, digitColor);
 }
 
-void WatchFace::setPixel(Position2D position2D, CHSV color) {
+void WatchFace::setPixel(Position2D position2D, CHSV color) const {
     if (position2D.getX() < 0 || position2D.getX() > width - 1 || position2D.getY() < 0 || position2D.getY() > height - 1) return;
 
     uint16_t pixelAbsolutPosition = position2D.getY() * width + position2D.getX();
     leds[getMatrixAbsolutePosition(pixelAbsolutPosition)] = color;
 }
 
-void  WatchFace::setIcon(Position2D position2D, const uint8_t(&icon)[8][7], bool isMonotone) {
+void  WatchFace::setIcon(Position2D position2D, const uint8_t(&icon)[8][7], bool isMonotone) const {
     for (uint8_t row = 0; row < iconHeight; row++) {
         const uint8_t* rowData = icon[row];
 

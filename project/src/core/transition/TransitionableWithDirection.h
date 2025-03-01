@@ -11,4 +11,4 @@ protected:
     bool transitionDirection = false;
 };
 
-#endif // TRANSITIONABLEWITHDIRECTION_H
+#endif
