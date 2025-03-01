@@ -2,10 +2,10 @@
 #define STOPWATCHEWATCHFACE_H
 
 #include <../src/watchface/core/WatchFace.h>
+#include <../src/resources/icon/watchface.h>
 
 
 class StopwatchWatchFace : public WatchFace {
-private:
     // update
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;

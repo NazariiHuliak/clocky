@@ -5,10 +5,11 @@
 
 #include <../src/watchface/core/WatchFace.h>
 #include <../src/core/transition/Transitionable.h>
+#include <resources/icon/weather.h>
+#include <utils/matrix/MatrixUtil.h>
 
 
 class TimeWatchFace : public WatchFace, public Transitionable {
-private:
     // modes 
     const uint8_t numModes = 2;
     const uint8_t mainMode = 0;

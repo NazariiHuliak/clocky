@@ -18,7 +18,7 @@ class ButtonHandler {
     unsigned long clickPeriod;
     unsigned long lastTimeChecked;
 
-    constexpr unsigned long HOLD_TIME_THRESHOLD = 1000;
+    unsigned long HOLD_TIME_THRESHOLD = 1000;
 
     bool shouldUpdate(unsigned long currentTime);
 
