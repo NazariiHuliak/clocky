@@ -29,6 +29,8 @@ void WatchFaceManager::updateWatchFacesData() {
             if (i != currentWatchFace) {
                 watchFaces[i]->resetMode();
                 if (!globalUpdateAllowed) continue;
+            } else {
+                isWatchFaceChangeAllowed = watchFaces[i]->isWatchFaceChangeAllowed();
             }
 
             const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
@@ -43,7 +45,7 @@ void WatchFaceManager::showWatchFace() {
     if (isTransitioning) {
         performTransition();
     } else if (watchFaces[currentWatchFace]) {
-        watchFaces[currentWatchFace]->showFrame();
+        watchFaces[currentWatchFace]->showFrame(0);
     }
 }
 
@@ -69,7 +71,7 @@ void WatchFaceManager::resetCurrentWatchFace() const {
 
 bool WatchFaceManager::isUpdateDataAllowed() const {
     for (uint8_t i = 0; i < m_count; i++) {
-        if (!watchFaces[i]->isUpdateAllowed()) return false;
+        if (!watchFaces[i]->isExternalUpdateAllowed()) return false;
     }
 
     return true;

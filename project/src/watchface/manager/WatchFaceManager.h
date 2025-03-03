@@ -11,7 +11,7 @@
 class WatchFaceManager final: public TransitionableWithDirection {
     WatchFace** watchFaces;
     uint8_t m_count;
-    uint8_t currentWatchFace = 0;
+    uint8_t currentWatchFace = 3;
 
     bool isWatchFaceChangeAllowed = true;
 

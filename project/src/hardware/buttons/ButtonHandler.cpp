@@ -29,9 +29,9 @@ bool ButtonHandler::shouldUpdate(unsigned long currentTime) {
 }
 
 /**
-    @return 0: nothing clicked
-    i + 1: button_i was clicked
-    buttonCount + i + 1: button_i was pressed for 1 second
+    @return 0: nothing clicked <br>
+    i + 1: button_i was clicked <br>
+    buttonCount + i + 1: button_i was pressed for 1 second <br>
 */
 uint8_t ButtonHandler::processButtons() {
     unsigned long currentTime = millis();

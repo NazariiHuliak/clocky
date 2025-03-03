@@ -5,7 +5,7 @@
 #include <../src/resources/icon/watchface.h>
 
 
-class StopwatchWatchFace : public WatchFace {
+class StopwatchWatchFace final : public WatchFace {
     // update
     const unsigned long updateDataPeriod = 1000; // in ms
     unsigned long lastDataUpdate = 0;
@@ -37,8 +37,13 @@ class StopwatchWatchFace : public WatchFace {
         }
     }
 public:
-    StopwatchWatchFace(CRGB* leds) : WatchFace(leds) {}
-    ~StopwatchWatchFace() {}
+    explicit StopwatchWatchFace(CRGB* leds) : WatchFace(leds) {}
+
+    ~StopwatchWatchFace() override = default;
+
+    bool isWatchFaceChangeAllowed() override {
+        return true;
+    }
 
     unsigned long getUpdateDataPeriod() override {
         return updateDataPeriod;
@@ -48,20 +53,20 @@ public:
         return lastDataUpdate;
     }
 
-    void showFrame(int16_t xOffset = 0) override {
+    void showFrame(const int16_t xOffset) override {
         if (currentMode == 2 && !displayTime) {
             FastLED.clear();
-            setIcon(Position2D(xOffset, 0), stopwatch, false);
+            drawer.setIcon(Position2D(xOffset, 0), stopwatch, false);
             return;
         }
 
-        this->setDigit(Position2D(7 + xOffset, 1), minutes / 10);
-        this->setDigit(Position2D(11 + xOffset, 1), minutes % 10);
-        this->setDigit(Position2D(17 + xOffset, 1), seconds / 10);
-        this->setDigit(Position2D(21 + xOffset, 1), seconds % 10);
+        drawer.setDigit(Position2D(7 + xOffset, 1), minutes / 10);
+        drawer.setDigit(Position2D(11 + xOffset, 1), minutes % 10);
+        drawer.setDigit(Position2D(17 + xOffset, 1), seconds / 10);
+        drawer.setDigit(Position2D(21 + xOffset, 1), seconds % 10);
 
-        setColon(true, Position2D(xOffset, 0));
-        setIcon(Position2D(xOffset, 0), stopwatch, false);
+        drawer.setColon(true, Position2D(xOffset, 0));
+        drawer.setIcon(Position2D(xOffset, 0), stopwatch, false);
     }
 
     void nextMode() override {
@@ -74,7 +79,7 @@ public:
         seconds = 0;
     }
 
-    bool isUpdateAllowed() override {
+    bool isExternalUpdateAllowed() override {
         return currentMode == 0;
     }
 

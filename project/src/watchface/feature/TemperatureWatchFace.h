@@ -8,8 +8,7 @@
 #include <../src/resources/icon/signs.h>
 
 
-class TemperatureWatchFace : public WatchFace {
-private:
+class TemperatureWatchFace final : public WatchFace {
     // modes 
     const uint8_t numModes = 1;
 
@@ -27,7 +26,11 @@ public:
         temperatureSensor(tempSensor) {
     }
 
-    ~TemperatureWatchFace() {}
+    ~TemperatureWatchFace() override = default;
+
+    bool isWatchFaceChangeAllowed() override {
+        return true;
+    }
 
     unsigned long getUpdateDataPeriod() override {
         return updateDataPeriod;
@@ -37,15 +40,15 @@ public:
         return lastDataUpdate;
     }
 
-    void showFrame(int16_t xOffset = 0) override {
+    void showFrame(const int16_t xOffset) override {
         uint16_t tempValue = lastData * 10;
-        this->setDigit(Position2D(7 + xOffset, 1), tempValue / 100);
-        this->setDigit(Position2D(11 + xOffset, 1), (tempValue % 100) / 10);
-        this->setPixel(Position2D(15 + xOffset, 5));
-        this->setDigit(Position2D(17 + xOffset, 1), tempValue % 10);
+        drawer.setDigit(Position2D(7 + xOffset, 1), tempValue / 100);
+        drawer.setDigit(Position2D(11 + xOffset, 1), (tempValue % 100) / 10);
+        drawer.setPixel(Position2D(15 + xOffset, 5));
+        drawer.setDigit(Position2D(17 + xOffset, 1), tempValue % 10);
 
-        setIcon(Position2D(xOffset, 0), sun, false); // Should be change to appropriate
-        setIcon(Position2D(21 + xOffset, 2), celsiusSignSmall, true);
+        drawer.setIcon(Position2D(xOffset, 0), sun, false); // Should be change to appropriate
+        drawer.setIcon(Position2D(21 + xOffset, 2), celsiusSignSmall, true);
     }
 
     //TODO: Showing humidity. Change the temperature sensor to DHT** to have the humidity as well.
@@ -53,7 +56,7 @@ public:
 
     void resetMode() override {}
 
-    bool isUpdateAllowed() override { return true; }
+    bool isExternalUpdateAllowed() override { return true; }
 
     void updateData(unsigned long updateTime) override {
         lastDataUpdate = updateTime;
