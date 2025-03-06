@@ -6,10 +6,10 @@
 #include <RtcDS1302.h>
 
 #include <../src/watchface/manager/WatchFaceManager.h>
-#include <../src/watchface/feature/TimeWatchFace.h>
-#include <../src/watchface/feature/TemperatureWatchFace.h>
-#include <../src/watchface/feature/StopwatchWatchFace.h>
-#include <../src/watchface/feature/TimerWatchFace.h>
+#include <../src/watchface/feature/Time/TimeWatchFace.h>
+#include <../src/watchface/feature/Temperature/TemperatureWatchFace.h>
+#include <../src/watchface/feature/Stopwatch/StopwatchWatchFace.h>
+#include <../src/watchface/feature/Timer/TimerWatchFace.h>
 
 #include <../src/hardware/buttons/ButtonHandler.h>
 #include <hardware/brightness/BrightnessHandler.h>
