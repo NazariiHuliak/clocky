@@ -2,9 +2,8 @@
 #define WEATHER_H
 
 #include <Arduino.h>
+#include <../src/resources/Config.h>
 
-constexpr uint8_t ICON_HEIGHT = 8;
-constexpr uint8_t ICON_WIDTH = 7;
 
 const uint8_t sun[ICON_HEIGHT][ICON_WIDTH] =
         {{0, 0, 0, 0, 0, 0, 0}, 

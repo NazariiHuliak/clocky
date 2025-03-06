@@ -37,7 +37,7 @@ public:
     unsigned long getUpdateDataPeriod() override;
     unsigned long getLastTimeDataUpdate() override;
 
-    void showFrame(const int16_t xOffset) override;
+    void showFrame(int16_t xOffset) override;
     void nextMode() override;
     void resetMode() override;
     bool isExternalUpdateAllowed() override;

@@ -16,6 +16,8 @@ bool WatchFaceManager::getIsWatchFaceChangeAllowed() const {
 }
 
 void WatchFaceManager::update() {
+    if (isTransitioning) return;
+
     updateWatchFacesData();
 }
 
@@ -99,11 +101,11 @@ void WatchFaceManager::performTransition() {
     FastLED.clear();
 
     watchFaces[currentWatchFace]->showFrame(-transitionOffset);
-    watchFaces[nextValue]->showFrame(transitionDirection ? width - transitionOffset : -width - transitionOffset);
+    watchFaces[nextValue]->showFrame(transitionDirection ? MATRIX_WIDTH - transitionOffset : -MATRIX_WIDTH - transitionOffset);
 
     transitionOffset += transitionDirection ? 1 : -1;
 
-    if (transitionDirection && transitionOffset > width || !transitionDirection && transitionOffset < -width) {
+    if (transitionDirection && transitionOffset > MATRIX_WIDTH || !transitionDirection && transitionOffset < -MATRIX_WIDTH) {
         isTransitioning = false;
         transitionOffset = 0;
 

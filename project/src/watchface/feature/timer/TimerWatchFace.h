@@ -64,6 +64,7 @@ public:
     bool isWatchFaceChangeAllowed() override;
     unsigned long getUpdateDataPeriod() override;
     unsigned long getLastTimeDataUpdate() override;
+
     void nextMode() override;
     void showFrame(int16_t xOffset) override;
     void resetMode() override;

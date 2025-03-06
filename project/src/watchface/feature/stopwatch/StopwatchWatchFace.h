@@ -21,6 +21,7 @@ class StopwatchWatchFace final : public WatchFace {
     uint8_t currentMode = 0;
     bool displayTime = true;
 
+    // Stopwatch logic
     void incrementTime();
 
 public:
@@ -30,7 +31,8 @@ public:
     bool isWatchFaceChangeAllowed() override;
     unsigned long getUpdateDataPeriod() override;
     unsigned long getLastTimeDataUpdate() override;
-    void showFrame(const int16_t xOffset) override;
+
+    void showFrame(int16_t xOffset) override;
     void nextMode() override;
     void resetMode() override;
     bool isExternalUpdateAllowed() override;

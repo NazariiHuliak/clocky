@@ -8,6 +8,7 @@
 #include <../src/resources/icon/weather.h>
 #include <../src/resources/icon/colors.h>
 #include <../src/watchface/core/PixelDrawer/PixelDrawer.h>
+#include <../src/resources/Config.h>
 
 class WatchFace {
 protected:

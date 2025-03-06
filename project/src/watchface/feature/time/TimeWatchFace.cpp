@@ -74,11 +74,11 @@ void TimeWatchFace::performTransition() {
     FastLED.clear();
 
     showFrame(currentModeIndex, 0, -transitionOffset);
-    showFrame(nextValue, 0, -height - transitionOffset);
+    showFrame(nextValue, 0, -MATRIX_HEIGHT - transitionOffset);
 
     transitionOffset -= 1;
 
-    if (transitionOffset < -height) {
+    if (transitionOffset < -MATRIX_HEIGHT) {
         isTransitioning = false;
         transitionOffset = 0;
         currentModeIndex = nextValue;

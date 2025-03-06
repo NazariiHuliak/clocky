@@ -5,12 +5,12 @@ void PixelDrawer::setDigit(Position2D position2D, uint8_t digit) const {
         byte rowData = numbers[digit][row];
 
         uint16_t pixelRow = position2D.y + row;
-        if (pixelRow < 0 || pixelRow > height - 1) continue;
+        if (pixelRow < 0 || pixelRow > MATRIX_HEIGHT - 1) continue;
 
-        uint16_t pixelNumberInRows = pixelRow * width;
+        uint16_t pixelNumberInRows = pixelRow * MATRIX_WIDTH;
         for (uint8_t bitPos = 6; bitPos >= 4; bitPos--) {
             uint16_t pixelCol = position2D.x + (6 - bitPos);
-            if (pixelCol < 0 || pixelCol > 23) continue;
+            if (pixelCol < 0 || pixelCol > MATRIX_WIDTH - 1) continue;
 
             uint16_t pixelAbsolutPosition = pixelNumberInRows + pixelCol;
 
@@ -34,9 +34,9 @@ void PixelDrawer::setPixel(Position2D position2D) const {
 }
 
 void PixelDrawer::setPixel(Position2D position2D, CHSV color) const {
-    if (position2D.x < 0 || position2D.x > width - 1 || position2D.y < 0 || position2D.y > height - 1) return;
+    if (position2D.x < 0 || position2D.x > MATRIX_WIDTH - 1 || position2D.y < 0 || position2D.y > MATRIX_HEIGHT - 1) return;
 
-    uint16_t pixelAbsolutPosition = position2D.y * width + position2D.x;
+    uint16_t pixelAbsolutPosition = position2D.y * MATRIX_WIDTH + position2D.x;
     leds[getMatrixAbsolutePosition(pixelAbsolutPosition)] = color;
 }
 
@@ -45,12 +45,12 @@ void  PixelDrawer::setIcon(Position2D position2D, const uint8_t(&icon)[ICON_HEIG
         const uint8_t* rowData = icon[row];
 
         uint16_t pixelRow = position2D.y + row;
-        if (pixelRow < 0 || pixelRow > height - 1) continue;
+        if (pixelRow < 0 || pixelRow > MATRIX_HEIGHT - 1) continue;
 
-        uint16_t pixelNumberInRows = pixelRow * width;
+        uint16_t pixelNumberInRows = pixelRow * MATRIX_WIDTH;
         for (uint8_t col = 0; col < ICON_WIDTH; col++) {
             uint16_t pixelCol = position2D.x + col;
-            if (pixelCol < 0 || pixelCol > width - 1) continue;
+            if (pixelCol < 0 || pixelCol > MATRIX_WIDTH - 1) continue;
 
             uint16_t pixelAbsolutPosition = pixelNumberInRows + pixelCol;
             uint16_t matrixAbsolutePosition = getMatrixAbsolutePosition(pixelAbsolutPosition);

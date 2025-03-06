@@ -2,8 +2,9 @@
 #define WATCHFACEICON_H
 
 #include <Arduino.h>
+#include <../src/resources/Config.h>
 
-const uint8_t stopwatch[8][7] =
+const uint8_t stopwatch[ICON_HEIGHT][ICON_WIDTH] =
     {{0, 0, 0, 0, 0, 0, 0}, 
     {0, 0, 3, 3, 3, 0, 0}, 
     {0, 3, 0, 4, 0, 3, 0}, 
@@ -13,7 +14,7 @@ const uint8_t stopwatch[8][7] =
     {0, 3, 0, 0, 0, 3, 0}, 
     {0, 0, 3, 3, 3, 0, 0}};
 
-const uint8_t timer[8][7] = 
+const uint8_t timer[ICON_HEIGHT][ICON_WIDTH] =
     {{5, 5, 5, 5, 5, 5, 5}, 
     {0, 5, 0, 0, 0, 5, 0}, 
     {0, 5, 1, 1, 1, 5, 0}, 
