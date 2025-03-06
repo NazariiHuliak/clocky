@@ -6,12 +6,12 @@
 
 #include <../src/watchface/core/WatchFace.h>
 #include <../src/core/transition/TransitionableWithDirection.h>
-
+#include <../src/core/Logger.h>
 
 class WatchFaceManager final: public TransitionableWithDirection {
     WatchFace** watchFaces;
     uint8_t m_count;
-    uint8_t currentWatchFace = 3;
+    uint8_t currentWatchFace = 0;
 
     bool isWatchFaceChangeAllowed = true;
 
@@ -25,6 +25,7 @@ public:
 
     bool getIsWatchFaceChangeAllowed() const;
     void update();
+
     void updateWatchFacesData();
 
     void showWatchFace();

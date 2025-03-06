@@ -3,7 +3,6 @@
 
 #include <FastLED.h>
 
-#include <../src/core/model/Position2D/Position2D.h>
 #include <../src/utils/matrix/MatrixUtil.h>
 #include <../src/resources/font/digits.h>
 #include <../src/resources/icon/weather.h>

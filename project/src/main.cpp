@@ -70,7 +70,6 @@ void setup() {
 
   //Temperature
   tempSensor.begin();
-
   Serial.begin(115200);
 }
 

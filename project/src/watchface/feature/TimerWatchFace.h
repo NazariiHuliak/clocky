@@ -20,13 +20,12 @@ class TimerWatchFace final : public WatchFace {
     uint8_t currentMode = 0;
 
     // blinking
-    bool isVisible = false;
+    bool isVisible = true;
     unsigned long lastShowedTime = 0;
     unsigned long showingTime = 500;
 
     // data
-    uint8_t minutes = 0;
-    uint8_t seconds = 0;
+    MinuteSecond currentData = {0, 0};
     ButtonHandler &buttonHandler;
 
     int8_t currentCommonTimer = -1;
@@ -49,15 +48,15 @@ class TimerWatchFace final : public WatchFace {
     void showMinutes(const bool blinking, const int16_t xOffset) const {
         if (blinking && !isVisible) return;
 
-        drawer.setDigit(Position2D(7 + xOffset, 1), minutes / 10);
-        drawer.setDigit(Position2D(11 + xOffset, 1), minutes % 10);
+        drawer.setDigit(Position2D(7 + xOffset, 1), currentData.minutes / 10);
+        drawer.setDigit(Position2D(11 + xOffset, 1), currentData.minutes % 10);
     }
 
     void showSeconds(const bool blinking, const int16_t xOffset) const {
         if (blinking && !isVisible) return;
 
-        drawer.setDigit(Position2D(17 + xOffset, 1), seconds / 10);
-        drawer.setDigit(Position2D(21 + xOffset, 1), seconds % 10);
+        drawer.setDigit(Position2D(17 + xOffset, 1), currentData.seconds / 10);
+        drawer.setDigit(Position2D(21 + xOffset, 1), currentData.seconds % 10);
     }
 
     void showColon(const bool blinking, const int16_t xOffset) const {
@@ -90,11 +89,11 @@ class TimerWatchFace final : public WatchFace {
             case 1: changeCurrentCommonTimer(isRight);
                 break;
             case 2:
-                seconds = (seconds + (isRight ? 1 : 60 - 1)) % 60;
+                currentData.seconds = (currentData.seconds + (isRight ? 1 : 60 - 1)) % 60;
                 break;
             case 3:
-                minutes = (minutes + (isRight ? 1 : 99 - 1)) % 99;
-            break;
+                currentData.minutes = (currentData.minutes + (isRight ? 1 : 99 - 1)) % 99;
+                break;
             default: break;
         }
     }
@@ -123,7 +122,7 @@ class TimerWatchFace final : public WatchFace {
                 currentMode = 5;
                 break;
             case 5:
-                if (minutes == 0 && seconds == 0) {
+                if (currentData.minutes == 0 && currentData.seconds == 0) {
                     resetMode();
                 } else {
                     // resume
@@ -141,29 +140,30 @@ class TimerWatchFace final : public WatchFace {
         } else {
             // go to manual timer set mode
             currentMode = 2;
-            minutes = 0;
-            seconds = 0;
+            currentData.minutes = 0;
+            currentData.seconds = 0;
         }
     }
 
     void changeCurrentCommonTimer(const bool direction) {
         currentCommonTimer = static_cast<int8_t>(
             (currentCommonTimer + (direction ? 1 : numCommonTimers - 1)) % numCommonTimers);
-        minutes = commonTimers[currentCommonTimer].minute;
-        seconds = commonTimers[currentCommonTimer].second;
+        currentData = commonTimers[currentCommonTimer];
+        // minutes = commonTimers[currentCommonTimer].minute;
+        // seconds = commonTimers[currentCommonTimer].second;
     }
 
     void decrementTime() {
-        if (seconds == 0) {
-            if (minutes == 0) {
+        if (currentData.seconds == 0) {
+            if (currentData.minutes == 0) {
                 currentCommonTimer = -1;
                 currentMode = 5; // Pause when countdown reaches 0
             } else {
-                minutes--;
-                seconds = 59;
+                currentData.minutes--;
+                currentData.seconds = 59;
             }
         } else {
-            seconds--;
+            currentData.seconds--;
         }
     }
 
@@ -174,7 +174,7 @@ public:
     ~TimerWatchFace() override = default;
 
     bool isWatchFaceChangeAllowed() override {
-        return currentMode == 0;
+        return currentMode == 0 || currentMode == 5;
     }
 
     unsigned long getUpdateDataPeriod() override {
@@ -206,8 +206,8 @@ public:
     }
 
     void resetMode() override {
-        minutes = 0;
-        seconds = 0;
+        currentData.minutes = 0;
+        currentData.seconds = 0;
 
         currentCommonTimer = -1; // not selected
         currentMode = 0; // allows to go to another watchface
@@ -215,7 +215,7 @@ public:
     }
 
     bool isExternalUpdateAllowed() override {
-        return false;
+        return currentMode == 0;
     }
 
     void updateData(const unsigned long updateTime) override {
@@ -228,7 +228,7 @@ public:
                     lastDataUpdate = updateTime;
                 }
             } else if (currentMode != 1) {
-                if (updateTime - lastShowedTime >=  showingTime) {
+                if (updateTime - lastShowedTime >= showingTime) {
                     isVisible = !isVisible;
                     lastShowedTime = updateTime;
                 }

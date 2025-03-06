@@ -1,7 +1,8 @@
 #include "WatchFaceManager.h"
 #include <utils/matrix/MatrixUtil.h>
 
-WatchFaceManager::WatchFaceManager(WatchFace** watchFaces, const uint8_t count) : watchFaces(watchFaces), m_count(count) {}
+WatchFaceManager::WatchFaceManager(WatchFace **watchFaces,
+                                   const uint8_t count) : watchFaces(watchFaces), m_count(count) {}
 
 WatchFaceManager::~WatchFaceManager() {
     for (uint8_t i = 0; i < m_count; i++) {
@@ -25,6 +26,8 @@ void WatchFaceManager::updateWatchFacesData() {
         lastTimeDataUpdate = currentTime;
 
         const bool globalUpdateAllowed = isUpdateDataAllowed();
+        Logger::info(("WatchFace manager. Global update allowed: " + String(globalUpdateAllowed)).c_str());
+
         for (uint8_t i = 0; i < m_count; i++) {
             if (i != currentWatchFace) {
                 watchFaces[i]->resetMode();
@@ -35,6 +38,7 @@ void WatchFaceManager::updateWatchFacesData() {
 
             const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
             if (currentTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
+                Logger::info(("WatchFace [" + String(i) + "]: data updated").c_str());
                 watchFaces[i]->updateData(currentTime);
             }
         }
@@ -71,13 +75,18 @@ void WatchFaceManager::resetCurrentWatchFace() const {
 
 bool WatchFaceManager::isUpdateDataAllowed() const {
     for (uint8_t i = 0; i < m_count; i++) {
-        if (!watchFaces[i]->isExternalUpdateAllowed()) return false;
+        if (!watchFaces[i]->isExternalUpdateAllowed()) {
+            Logger::info(("WatchFace [" + String(i) + "]. Does not allow external update").c_str());
+            return false;
+        }
     }
 
     return true;
 }
 
 void WatchFaceManager::initiateTransition(const bool direction) {
+    Logger::info(("Transition initiated with direction: " + String(direction)).c_str());
+
     isTransitioning = true;
     transitionOffset = 0;
     nextValue = (currentWatchFace + (direction ? 1 : m_count - 1)) % m_count;
