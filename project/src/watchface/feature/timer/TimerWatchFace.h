@@ -3,7 +3,7 @@
 
 #include <../src/watchface/core/WatchFace.h>
 #include <../src/core/transition/Transitionable.h>
-#include <../src/hardware/buttons/ButtonHandler.h>
+#include <../src/data/buttons/ButtonHandler.h>
 #include <../src/core/model/MinuteSecond.h>
 
 class TimerWatchFace final : public WatchFace {

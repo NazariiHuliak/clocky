@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
-#include "../src/hardware/brightness/Photoresistor/PhotoresistorDataFetcher.h"
+#include "../src/data/brightness/Photoresistor/PhotoresistorDataFetcher.h"
 #include <../src/core/transition/Transitionable.h>
 
 
