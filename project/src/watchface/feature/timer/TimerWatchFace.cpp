@@ -40,6 +40,7 @@ void TimerWatchFace::resetMode() {
     currentCommonTimer = -1;
     currentMode = 0;
     commonTimerInitializing = false;
+    isVisible = true;
 }
 
 bool TimerWatchFace::isExternalUpdateAllowed() {
