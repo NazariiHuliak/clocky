@@ -68,6 +68,7 @@ bool TimeWatchFace::isExternalUpdateAllowed() {
 void TimeWatchFace::updateData(unsigned long updateTime) {
     now = clock.GetDateTime();
     lastDataUpdate = updateTime;
+    Log::info("TimeWatchFace: data updated at ", String(updateTime), ".");
 }
 
 void TimeWatchFace::initiateTransition(uint8_t index) {

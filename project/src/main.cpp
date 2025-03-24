@@ -33,6 +33,7 @@ DallasTemperature tempSensor(&oneWire);
 // Buttons
 const uint8_t buttonPins[] = {BUTTON_1, BUTTON_2, BUTTON_3};
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
+
 BrightnessHandler brightnessHandler(A0);
 
 WatchFace *watchFaces[5] = {
@@ -60,6 +61,9 @@ void setup() {
 
     // Temperature
     tempSensor.begin();
+
+    // Watchface manager
+    watchFaceManager.begin();
 
     // TODO: Show loading window when connection to the WiFi
     connectToWiFi(SSID_, PASSWORD_);
@@ -89,7 +93,6 @@ void loop() {
         FastLED.show();
     }
 
-    watchFaceManager.update();
     brightnessHandler.update();
     if (isWiFiConnected()) NetworkDataManager::instance().updateEmergencyData();
 }

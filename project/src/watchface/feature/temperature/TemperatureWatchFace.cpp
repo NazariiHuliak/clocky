@@ -1,6 +1,7 @@
 #include "TemperatureWatchFace.h"
 #include <Arduino.h>
 #include "../src/resources/icon/watchface.h"
+#include "utils/log/Log.h"
 
 TemperatureWatchFace::TemperatureWatchFace(CRGB* leds, DallasTemperature& tempSensor) :
     WatchFace(leds),
@@ -40,8 +41,9 @@ bool TemperatureWatchFace::isExternalUpdateAllowed() {
 
 void TemperatureWatchFace::updateData(unsigned long updateTime) {
     lastDataUpdate = updateTime;
-    Serial.println("Temperature updated");
 
     temperatureSensor.requestTemperatures();
     lastData = temperatureSensor.getTempCByIndex(0);
+
+    Log::info("TemperatureWatchFace: data updated at ", String(updateTime), ".");
 }

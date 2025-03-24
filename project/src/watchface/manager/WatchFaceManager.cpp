@@ -14,54 +14,22 @@ WatchFaceManager::~WatchFaceManager() {
     delete[] watchFaces;
 }
 
+void WatchFaceManager::begin() {
+    xTaskCreatePinnedToCore(
+        WatchFaceManager::updateWrapper,
+        "updateTask",
+        16384,
+        this,
+        1,
+        NULL,
+        0
+    );
+}
+
 bool WatchFaceManager::getIsWatchFaceChangeAllowed() const {
     return isWatchFaceChangeAllowed && !isTransitioning;
 }
 
-void WatchFaceManager::update() {
-    if (isTransitioning) return;
-
-    const unsigned long currentTime = millis();
-    checkAirAlert(currentTime);
-    updateWatchFacesData(currentTime);
-}
-
-void WatchFaceManager::checkAirAlert(unsigned long updateTime) {
-    if (updateTime - lastAirAlertCheck <= AIR_ALERT_UPDATE_PERIOD) return;
-    lastAirAlertCheck = updateTime;
-
-    bool isAirAlert = NetworkDataManager::instance().getAirAlert().alertActive;
-    if (isAirAlert && !wasTransitionedToAirAlert) {
-        initiateTransition(airAlertWatchFace);
-        wasTransitionedToAirAlert = true;
-    } else if (!isAirAlert && wasTransitionedToAirAlert) {
-        wasTransitionedToAirAlert = false;
-    }
-}
-
-void WatchFaceManager::updateWatchFacesData(unsigned long updateTime) {
-    if (updateTime - lastTimeDataUpdate >= checkUpdatePeriod) {
-        lastTimeDataUpdate = updateTime;
-
-        const bool globalUpdateAllowed = isUpdateDataAllowed();
-        Log::info(("WatchFaceManager. Global update allowed: " + String(globalUpdateAllowed)).c_str());
-
-        for (uint8_t i = 0; i < m_count; i++) {
-            if (i != currentWatchFace) {
-                watchFaces[i]->resetMode();
-                if (!globalUpdateAllowed) continue;
-            } else {
-                isWatchFaceChangeAllowed = watchFaces[i]->isWatchFaceChangeAllowed();
-            }
-
-            const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
-            if (updateTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
-                Log::info(("WatchFace [" + String(i) + "]: data updated").c_str());
-                watchFaces[i]->updateData(updateTime);
-            }
-        }
-    }
-}
 
 void WatchFaceManager::showWatchFace() {
     if (isTransitioning) {
@@ -91,6 +59,18 @@ void WatchFaceManager::resetCurrentWatchFace() const {
     watchFaces[currentWatchFace]->resetMode();
 }
 
+void WatchFaceManager::updateWrapper(void *parameter) {
+    WatchFaceManager *obj = static_cast<WatchFaceManager *>(parameter);
+    if (obj == nullptr) {
+        vTaskDelete(NULL);
+        return;
+    }
+
+    while (true) {
+        obj->update();
+    }
+}
+
 bool WatchFaceManager::isUpdateDataAllowed() const {
     for (uint8_t i = 0; i < m_count; i++) {
         if (!watchFaces[i]->isExternalUpdateAllowed()) {
@@ -100,6 +80,46 @@ bool WatchFaceManager::isUpdateDataAllowed() const {
     }
 
     return true;
+}
+
+void WatchFaceManager::update() {
+    const unsigned long currentTime = millis();
+    checkAirAlert(currentTime);
+    updateWatchFacesData(currentTime);
+}
+
+void WatchFaceManager::checkAirAlert(unsigned long updateTime) {
+    if (updateTime - lastAirAlertCheck <= AIR_ALERT_UPDATE_PERIOD) return;
+    lastAirAlertCheck = updateTime;
+
+    bool isAirAlert = NetworkDataManager::instance().getAirAlert().alertActive;
+    if (isAirAlert && !wasTransitionedToAirAlert) {
+        initiateTransition(airAlertWatchFace);
+        wasTransitionedToAirAlert = true;
+    } else if (!isAirAlert && wasTransitionedToAirAlert) {
+        wasTransitionedToAirAlert = false;
+    }
+}
+
+void WatchFaceManager::updateWatchFacesData(unsigned long updateTime) {
+    if (updateTime - lastTimeDataUpdate >= checkUpdatePeriod) {
+        lastTimeDataUpdate = updateTime;
+
+        const bool globalUpdateAllowed = isUpdateDataAllowed();
+        for (uint8_t i = 0; i < m_count; i++) {
+            if (i != currentWatchFace) {
+                watchFaces[i]->resetMode();
+                if (!globalUpdateAllowed) continue;
+            } else {
+                isWatchFaceChangeAllowed = watchFaces[i]->isWatchFaceChangeAllowed();
+            }
+
+            const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
+            if (updateTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
+                watchFaces[i]->updateData(updateTime);
+            }
+        }
+    }
 }
 
 void WatchFaceManager::initiateTransition(const uint8_t nextValue_) {

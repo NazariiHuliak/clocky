@@ -30,7 +30,6 @@ inline void parseRegionAlertNow(String &payload, void *statefulObj) {
         Stateful<AirAlert> *data;
         ~Cleanup() {
             data->isUpdating = false;
-            data->lastUpdate = millis();
         }
     } guard{statefulAlertData};
 
@@ -60,6 +59,7 @@ inline void parseRegionAlertNow(String &payload, void *statefulObj) {
 
     bool alertNow = regionObj["alertnow"];
     statefulAlertData->alertActive = alertNow;
+    statefulAlertData->lastUpdate = millis();
     statefulAlertData->print();
     Log::info("Data fetched");
 }

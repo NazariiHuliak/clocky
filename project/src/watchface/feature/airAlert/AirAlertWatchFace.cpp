@@ -42,7 +42,9 @@ bool AirAlertWatchFace::isExternalUpdateAllowed() {
 }
 
 void AirAlertWatchFace::updateData(unsigned long updateTime) {
-    if (lastDataUpdate - updateTime >= updateDataPeriod) {
-        airAlert = NetworkDataManager::instance().getAirAlert();
-    }
+    if (updateTime - lastDataUpdate  < updateDataPeriod) return;
+
+    lastDataUpdate = updateTime;
+    airAlert = NetworkDataManager::instance().getAirAlert();
+    Log::info("AirAlertWatchFace: was synchronized at ", String(updateTime), ".");
 }

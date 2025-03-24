@@ -12,6 +12,7 @@
 
 class AirAlertCache : public Updatable {
     Stateful<AirAlert> statefulData;
+
 public:
     AirAlertCache() {
     };
@@ -23,7 +24,8 @@ public:
     }
 
     void update(unsigned long updateTime) override {
-        if (statefulData.isUpdating || updateTime - statefulData.lastUpdate < AIR_ALERT_UPDATE_PERIOD) return;
+        if (statefulData.isUpdating ||
+            (updateTime - statefulData.lastUpdate < AIR_ALERT_UPDATE_PERIOD && statefulData.lastUpdate != 0)) return;
         statefulData.isUpdating = true;
 
         sendGetRequest(AIR_ALERT_HOST, AIR_ALERT_PORT, AIR_ALERT_ENDPOINT, &statefulData, parseRegionAlertNow);

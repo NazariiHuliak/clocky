@@ -22,7 +22,7 @@ class AirAlertWatchFace final: public WatchFace {
     const unsigned long scrollDelay = 200;  // Adjust speed in milliseconds
 
     // Update
-    const unsigned long updateDataPeriod = 1000;
+    const unsigned long updateDataPeriod = 30000;
     unsigned long lastDataUpdate = 0;
 public:
     AirAlertWatchFace(CRGB* leds);

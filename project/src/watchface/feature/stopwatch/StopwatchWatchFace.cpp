@@ -1,6 +1,8 @@
 #include "StopwatchWatchFace.h"
 #include <Arduino.h>
 
+#include "utils/log/Log.h"
+
 StopwatchWatchFace::StopwatchWatchFace(CRGB* leds) : WatchFace(leds) {}
 
 bool StopwatchWatchFace::isWatchFaceChangeAllowed() {
@@ -53,6 +55,7 @@ void StopwatchWatchFace::updateData(unsigned long updateTime) {
     } else if (currentMode == 0) return;
 
     incrementTime();
+    Log::info("StopwatchWatchFace: data updated at ", String(updateTime), ".");
 }
 
 void StopwatchWatchFace::incrementTime() {

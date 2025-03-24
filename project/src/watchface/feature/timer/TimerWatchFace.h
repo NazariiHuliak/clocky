@@ -33,7 +33,11 @@ class TimerWatchFace final : public WatchFace {
     bool commonTimerInitializing = true;
     static constexpr uint8_t numCommonTimers = 5;
     MinuteSecond commonTimers[numCommonTimers] = {
-        {0, 5}, {5, 0}, {10, 0}, {20, 0}, {40, 0}
+        {0, 5},
+        {5, 0},
+        {10, 0},
+        {20, 0},
+        {40, 0}
     };
 
     // Update intervals
