@@ -2,7 +2,7 @@
 #define CURRENCYEXCHANGECACHE_H
 
 #include "../src/resources/Config.h"
-#include <../src/core/update/Updatable.h>
+#include <../src/core/state/Updatable.h>
 #include "../src/core/model/network/CurrencyExchange.h"
 
 class CurrencyExchangeCache: public Updatable {

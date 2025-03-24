@@ -1,8 +1,11 @@
 #include "WatchFaceManager.h"
 #include <utils/matrix/MatrixUtil.h>
 
+#include "data/network/NetworkDataManager.h"
+
 WatchFaceManager::WatchFaceManager(WatchFace **watchFaces,
-                                   const uint8_t count) : watchFaces(watchFaces), m_count(count) {}
+                                   const uint8_t count) : watchFaces(watchFaces), m_count(count) {
+}
 
 WatchFaceManager::~WatchFaceManager() {
     for (uint8_t i = 0; i < m_count; i++) {
@@ -18,17 +21,30 @@ bool WatchFaceManager::getIsWatchFaceChangeAllowed() const {
 void WatchFaceManager::update() {
     if (isTransitioning) return;
 
-    updateWatchFacesData();
+    const unsigned long currentTime = millis();
+    checkAirAlert(currentTime);
+    updateWatchFacesData(currentTime);
 }
 
-void WatchFaceManager::updateWatchFacesData() {
-    const unsigned long currentTime = millis();
+void WatchFaceManager::checkAirAlert(unsigned long updateTime) {
+    if (updateTime - lastAirAlertCheck <= AIR_ALERT_UPDATE_PERIOD) return;
+    lastAirAlertCheck = updateTime;
 
-    if (currentTime - lastTimeDataUpdate >= checkUpdatePeriod) {
-        lastTimeDataUpdate = currentTime;
+    bool isAirAlert = NetworkDataManager::instance().getAirAlert().alertActive;
+    if (isAirAlert && !wasTransitionedToAirAlert) {
+        initiateTransition(airAlertWatchFace);
+        wasTransitionedToAirAlert = true;
+    } else if (!isAirAlert && wasTransitionedToAirAlert) {
+        wasTransitionedToAirAlert = false;
+    }
+}
+
+void WatchFaceManager::updateWatchFacesData(unsigned long updateTime) {
+    if (updateTime - lastTimeDataUpdate >= checkUpdatePeriod) {
+        lastTimeDataUpdate = updateTime;
 
         const bool globalUpdateAllowed = isUpdateDataAllowed();
-        Log::info(("WatchFace manager. Global update allowed: " + String(globalUpdateAllowed)).c_str());
+        Log::info(("WatchFaceManager. Global update allowed: " + String(globalUpdateAllowed)).c_str());
 
         for (uint8_t i = 0; i < m_count; i++) {
             if (i != currentWatchFace) {
@@ -39,9 +55,9 @@ void WatchFaceManager::updateWatchFacesData() {
             }
 
             const unsigned long lastTimeUpdate = watchFaces[i]->getLastTimeDataUpdate();
-            if (currentTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
+            if (updateTime - lastTimeUpdate >= watchFaces[i]->getUpdateDataPeriod() || lastTimeUpdate == 0) {
                 Log::info(("WatchFace [" + String(i) + "]: data updated").c_str());
-                watchFaces[i]->updateData(currentTime);
+                watchFaces[i]->updateData(updateTime);
             }
         }
     }
@@ -86,6 +102,18 @@ bool WatchFaceManager::isUpdateDataAllowed() const {
     return true;
 }
 
+void WatchFaceManager::initiateTransition(const uint8_t nextValue_) {
+    if (currentWatchFace == nextValue_) return;
+    Log::info(("Transition initiated to: " + String(nextValue)).c_str());
+
+    isTransitioning = true;
+    transitionOffset = 0;
+    nextValue = nextValue_;
+    transitionDirection = currentWatchFace > nextValue_;
+
+    isWatchFaceChangeAllowed = false;
+}
+
 void WatchFaceManager::initiateTransition(const bool direction) {
     Log::info(("Transition initiated with direction: " + String(direction)).c_str());
 
@@ -101,11 +129,14 @@ void WatchFaceManager::performTransition() {
     FastLED.clear();
 
     watchFaces[currentWatchFace]->showFrame(-transitionOffset);
-    watchFaces[nextValue]->showFrame(transitionDirection ? MATRIX_WIDTH - transitionOffset : -MATRIX_WIDTH - transitionOffset);
+    watchFaces[nextValue]->showFrame(transitionDirection
+                                         ? MATRIX_WIDTH - transitionOffset
+                                         : -MATRIX_WIDTH - transitionOffset);
 
     transitionOffset += transitionDirection ? 1 : -1;
 
-    if (transitionDirection && transitionOffset > MATRIX_WIDTH || !transitionDirection && transitionOffset < -MATRIX_WIDTH) {
+    if (transitionDirection && transitionOffset > MATRIX_WIDTH ||
+        !transitionDirection && transitionOffset < -MATRIX_WIDTH) {
         isTransitioning = false;
         transitionOffset = 0;
 

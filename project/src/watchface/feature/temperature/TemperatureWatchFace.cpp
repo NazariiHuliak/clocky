@@ -1,5 +1,6 @@
 #include "TemperatureWatchFace.h"
 #include <Arduino.h>
+#include "../src/resources/icon/watchface.h"
 
 TemperatureWatchFace::TemperatureWatchFace(CRGB* leds, DallasTemperature& tempSensor) :
     WatchFace(leds),
@@ -24,7 +25,7 @@ void TemperatureWatchFace::showFrame(const int16_t xOffset) {
     drawer.setPixel(Position2D(15 + xOffset, 5));
     drawer.setDigit(Position2D(17 + xOffset, 1), tempValue % 10);
 
-    drawer.setIcon(Position2D(xOffset, 0), sun, false); // Should be changed to appropriate
+    drawer.setIcon(Position2D(xOffset, 0), thermometer, false); // Should be changed to appropriate
     drawer.setIcon(Position2D(21 + xOffset, 2), celsiusSignSmall, true);
 }
 

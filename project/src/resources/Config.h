@@ -37,13 +37,15 @@
 #define BUTTON_3 9
 
 // Wifi setting (should be moved to SRAM memory)
-#define SSID "HOME_2"
-#define PASSWORD "24092004"
+#define SSID_ "HOME_2"
+#define PASSWORD_ "24092004"
 #define CONNECTING_TIMEOUT 5000
 
 // Air alert settings
-#define AIR_ALERT_URL "https://ubilling.net.ua/aerialalerts/"
+#define AIR_ALERT_HOST "ubilling.net.ua"
+#define AIR_ALERT_PORT 80
+#define AIR_ALERT_ENDPOINT "/aerialalerts/"
 #define AIR_ALERT_REGION "Львівська область"
-#define AIR_ALERT_UPDATE_PERIOD 10000
+#define AIR_ALERT_UPDATE_PERIOD 180000 // 3 min
 
 #endif

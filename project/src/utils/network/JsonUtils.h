@@ -5,7 +5,14 @@
 #include <ArduinoJson.h>
 #include <../src/resources/Config.h>
 #include "../src/utils/log/Log.h"
+#include "../src/core/state/Stateful.h"
 
+inline void deleteHeaders(String &payload) {
+    int headerEnd = payload.indexOf("\r\n\r\n");
+    if (headerEnd != -1) {
+        payload = payload.substring(headerEnd + 4);
+    }
+}
 
 /**
  * Parses the given JSON payload and retrieves the `alertnow` value
@@ -15,34 +22,46 @@
  * @param payload The JSON string to parse.
  * @return        Boolean indicating whether alertnow is true for region specified in the Config.h.
  */
-inline bool parseRegionAlertNow(const String &payload) {
+inline void parseRegionAlertNow(String &payload, void *statefulObj) {
+    Stateful<AirAlert> *statefulAlertData = static_cast<Stateful<AirAlert> *>(statefulObj);
     JsonDocument doc;
 
+    struct Cleanup {
+        Stateful<AirAlert> *data;
+        ~Cleanup() {
+            data->isUpdating = false;
+            data->lastUpdate = millis();
+        }
+    } guard{statefulAlertData};
+
+    deleteHeaders(payload);
     DeserializationError error = deserializeJson(doc, payload);
     if (error) {
         Log::error("parseRegionAlertNow: Deserialization failed: ", String(error.f_str()));
-        return false;
+        return;
     }
 
     if (!doc["states"].is<JsonObject>()) {
         Log::error("parseRegionAlertNow: No 'states' key in JSON: ");
-        return false;
+        return;
     }
 
     JsonObject states = doc["states"].as<JsonObject>();
     if (!states[AIR_ALERT_REGION].is<JsonObject>()) {
         Log::error("parseRegionAlertNow: Region not found: ", String(AIR_ALERT_REGION));
-        return false;
+        return;
     }
 
     JsonObject regionObj = states[AIR_ALERT_REGION].as<JsonObject>();
     if (!regionObj["alertnow"].is<bool>()) {
         Log::error("parseRegionAlertNow: No 'alertnow' key for the region");
-        return false;
+        return;
     }
 
     bool alertNow = regionObj["alertnow"];
-    return alertNow;
+    statefulAlertData->alertActive = alertNow;
+    statefulAlertData->print();
+    Log::info("Data fetched");
 }
 
 #endif

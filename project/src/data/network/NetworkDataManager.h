@@ -32,12 +32,6 @@ public:
 
     NetworkDataManager &operator=(const NetworkDataManager &) = delete;
 
-    void update(unsigned long updateTime) {
-        alertCache.update(updateTime);
-        weatherCache.update(updateTime);
-        currencyExchangeCache.update(updateTime);
-    }
-
     AirAlert getAirAlert() {
         return alertCache.get();
     }
@@ -48,6 +42,16 @@ public:
 
     CurrencyExchange getCurrencyExchange() {
         return currencyExchangeCache.data;
+    }
+
+    void updateEmergencyData() {
+        alertCache.update(millis());
+    }
+
+    void updateAll() {
+        alertCache.update(millis());
+        weatherCache.update(millis());
+        currencyExchangeCache.update(millis());
     }
 
 private:

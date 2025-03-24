@@ -5,8 +5,8 @@
 #include "../src/resources/Config.h"
 #include "../src/core/model/network/Weather.h"
 #include <../src/utils/network/JsonUtils.h>
-#include <../src/utils/network/HttpUtils.h>
-#include <../src/core/update/Updatable.h>
+#include <../src/utils/network/NetworkUtils.h>
+#include <../src/core/state/Updatable.h>
 
 class WeatherCache : public Updatable {
 public:

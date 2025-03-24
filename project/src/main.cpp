@@ -1,3 +1,5 @@
+#include <../src/resources/Config.h>
+
 #include <Arduino.h>
 #include <Wire.h>
 #include <FastLED.h>
@@ -11,16 +13,11 @@
 #include <../src/watchface/feature/Temperature/TemperatureWatchFace.h>
 #include <../src/watchface/feature/Stopwatch/StopwatchWatchFace.h>
 #include <../src/watchface/feature/Timer/TimerWatchFace.h>
-
-#include <data/buttons/ButtonHandler.h>
-#include <data/brightness/BrightnessHandler.h>
-
-#include <../src/resources/Config.h>
-#include <../src/utils/network/JsonUtils.h>
-#include <../src/utils/network/HttpUtils.h>
+#include <../src/watchface/feature/AirAlert/AirAlertWatchFace.h>
 
 #include "data/network/NetworkDataManager.h"
-
+#include <data/buttons/ButtonHandler.h>
+#include <data/brightness/BrightnessHandler.h>
 
 // Leds
 CRGB leds[NUM_LEDS];
@@ -38,31 +35,14 @@ const uint8_t buttonPins[] = {BUTTON_1, BUTTON_2, BUTTON_3};
 ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 BrightnessHandler brightnessHandler(A0);
 
-WatchFace *watchFaces[4] = {
+WatchFace *watchFaces[5] = {
     new TimeWatchFace(leds, rtc),
     new TemperatureWatchFace(leds, tempSensor),
     new StopwatchWatchFace(leds),
-    new TimerWatchFace(leds, buttonHandler)
+    new TimerWatchFace(leds, buttonHandler),
+    new AirAlertWatchFace(leds)
 };
-WatchFaceManager watchFaceManager(watchFaces, 4);
-
-
-void connectToWiFi(const char* ssid, const char* password) {
-    WiFi.begin(ssid, password);
-    Log::info("Connecting to WiFi...");
-
-    unsigned long startAttemptTime = millis();
-    while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime < CONNECTING_TIMEOUT)) {
-        delay(500);
-        Log::info("Connecting to WiFi...");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        Log::info("Connected to WiFi!");
-    } else {
-        Log::warn("Failed to connect to WiFi within timeout.");
-    }
-}
+WatchFaceManager watchFaceManager(watchFaces, 5);
 
 void setup() {
     Serial.begin(115200);
@@ -74,14 +54,15 @@ void setup() {
 
     // RTC
     rtc.Begin();
-    // RtcDateTime compiled = RtcDateTime("Feb 10 2025", "18:17:00");
-    // RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+    // RtcDateTime compiled = RtcDateTime("Mar 15 2025", "11:56:00");
+    // // RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
     // rtc.SetDateTime(compiled);
 
     // Temperature
     tempSensor.begin();
 
     // TODO: Show loading window when connection to the WiFi
+    connectToWiFi(SSID_, PASSWORD_);
 }
 
 void loop() {
@@ -110,4 +91,5 @@ void loop() {
 
     watchFaceManager.update();
     brightnessHandler.update();
+    if (isWiFiConnected()) NetworkDataManager::instance().updateEmergencyData();
 }

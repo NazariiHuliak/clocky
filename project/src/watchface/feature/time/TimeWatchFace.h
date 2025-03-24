@@ -5,6 +5,7 @@
 #include <../src/watchface/core/WatchFace.h>
 #include <../src/core/transition/Transitionable.h>
 #include <resources/icon/weather.h>
+#include <resources/icon/signs.h>
 #include <utils/matrix/MatrixUtil.h>
 
 class TimeWatchFace final : public WatchFace, public Transitionable {

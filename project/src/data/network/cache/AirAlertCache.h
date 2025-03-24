@@ -6,12 +6,12 @@
 #include "../src/utils/log/Log.h"
 #include "../src/core/model/network/AirAlert.h"
 #include <../src/utils/network/JsonUtils.h>
-#include <../src/utils/network/HttpUtils.h>
-#include <../src/core/update/Updatable.h>
+#include <../src/utils/network/NetworkUtils.h>
+#include <../src/core/state/Updatable.h>
+#include "../src/core/state/Stateful.h"
 
 class AirAlertCache : public Updatable {
-    AirAlert data;
-
+    Stateful<AirAlert> statefulData;
 public:
     AirAlertCache() {
     };
@@ -19,15 +19,15 @@ public:
     ~AirAlertCache() override = default;
 
     AirAlert get() {
-        return data;
+        return statefulData.data;
     }
 
     void update(unsigned long updateTime) override {
-        if (updateTime - data.lastUpdate < AIR_ALERT_UPDATE_PERIOD) return;
+        if (statefulData.isUpdating || updateTime - statefulData.lastUpdate < AIR_ALERT_UPDATE_PERIOD) return;
+        statefulData.isUpdating = true;
 
+        sendGetRequest(AIR_ALERT_HOST, AIR_ALERT_PORT, AIR_ALERT_ENDPOINT, &statefulData, parseRegionAlertNow);
         Log::info("Air alert data was updated at: ", String(updateTime));
-        data.alertActive = parseRegionAlertNow(httpGet(AIR_ALERT_URL));
-        data.lastUpdate = updateTime;
     }
 };
 

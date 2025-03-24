@@ -3,10 +3,10 @@
 
 #include "BaseTransitionable.h"
 
-class TransitionableWithDirection : public BaseTransitionable {
+class MultiInitiationTransitionable : public BaseTransitionable {
 public:
     virtual void initiateTransition(bool direction) = 0;
-
+    virtual void initiateTransition(uint8_t nextValue) = 0;
 protected:
     bool transitionDirection = false;
 };

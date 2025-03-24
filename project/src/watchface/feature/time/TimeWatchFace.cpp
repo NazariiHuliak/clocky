@@ -1,8 +1,10 @@
 #include "TimeWatchFace.h"
 #include <FastLED.h>
+#include <../src/data/network/NetworkDataManager.h>
 
-TimeWatchFace::TimeWatchFace(CRGB* leds, RtcDS1302<ThreeWire>& rtc)
-    : WatchFace(leds), clock(rtc) {}
+TimeWatchFace::TimeWatchFace(CRGB *leds, RtcDS1302<ThreeWire> &rtc)
+    : WatchFace(leds), clock(rtc) {
+}
 
 bool TimeWatchFace::isWatchFaceChangeAllowed() {
     return true;
@@ -43,7 +45,11 @@ void TimeWatchFace::showFrame(uint8_t mode, int16_t xOffset, int16_t yOffset) co
         drawer.setPixel(Position2D(15 + xOffset, 5 + yOffset));
     }
 
-    drawer.setIcon(Position2D(xOffset, 0), sun, false);
+    bool isAirAlert = NetworkDataManager::instance().getAirAlert().alertActive;
+    drawer.setIcon(
+        Position2D(xOffset, 0),
+        isAirAlert ? airAlertSign : sun,
+        false);
 }
 
 void TimeWatchFace::nextMode() {
