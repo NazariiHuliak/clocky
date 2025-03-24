@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 #include <../src/resources/Config.h>
 #include "../src/utils/log/Log.h"
-#include "../src/core/state/Stateful.h"
+#include "core/state/Stateful.h"
 
 inline void deleteHeaders(String &payload) {
     int headerEnd = payload.indexOf("\r\n\r\n");

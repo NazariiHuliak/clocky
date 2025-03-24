@@ -5,7 +5,7 @@
 #include "../src/resources/Config.h"
 #include "../src/utils/log/Log.h"
 #include "../src/core/model/network/AirAlert.h"
-#include <../src/utils/network/JsonUtils.h>
+#include <../src/utils/json/JsonUtils.h>
 #include <../src/utils/network/NetworkUtils.h>
 #include <../src/core/state/Updatable.h>
 #include "../src/core/state/Stateful.h"
