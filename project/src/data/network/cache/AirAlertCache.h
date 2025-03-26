@@ -24,12 +24,22 @@ public:
     }
 
     void update(unsigned long updateTime) override {
-        if (statefulData.isUpdating ||
-            (updateTime - statefulData.lastUpdate < AIR_ALERT_UPDATE_PERIOD && statefulData.lastUpdate != 0)) return;
-        statefulData.isUpdating = true;
+        if (!canBeUpdateAt(updateTime)) return;
 
-        sendGetRequest(AIR_ALERT_HOST, AIR_ALERT_PORT, AIR_ALERT_ENDPOINT, &statefulData, parseRegionAlertNow);
-        Log::info("Air alert data was updated at: ", String(updateTime));
+        statefulData.isUpdating = true;
+        sendGetRequest(AIR_ALERT_HOST, AIR_ALERT_PORT, AIR_ALERT_ENDPOINT, &statefulData, parseRegionAlert, nullptr);
+        Log::info("Air alert: fetch request at: ", String(updateTime));
+    }
+
+    bool isUpdating() override {
+        return statefulData.isUpdating;
+    }
+
+    bool canBeUpdateAt(unsigned long updateTime) override {
+        return
+                !statefulData.isUpdating &&
+                (updateTime - statefulData.data.lastUpdate >= AIR_ALERT_UPDATE_PERIOD || statefulData.data.lastUpdate == 0) &&
+                getPermits() > 0;
     }
 };
 

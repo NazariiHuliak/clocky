@@ -94,5 +94,6 @@ void loop() {
     }
 
     brightnessHandler.update();
-    if (isWiFiConnected()) NetworkDataManager::instance().updateEmergencyData();
+    // if (isWiFiConnected()) NetworkDataManager::instance().updateEmergencyData();
+    if (isWiFiConnected())NetworkDataManager::instance().updateAll();
 }

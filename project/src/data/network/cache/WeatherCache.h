@@ -8,7 +8,7 @@
 #include <../src/utils/network/NetworkUtils.h>
 #include <../src/core/state/Updatable.h>
 
-class WeatherCache : public Updatable {
+/*class WeatherCache : public Updatable {
 public:
     static Weather data;
 
@@ -20,6 +20,6 @@ public:
     void update(unsigned long updateTime) override {
         //TODO: implement this method
     }
-};
+};*/
 
 #endif

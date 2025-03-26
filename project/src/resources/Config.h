@@ -2,6 +2,9 @@
 #define CONFIG_H
 
 #include <Arduino.h>
+#include <vector>
+#include "Currency.h"
+#include <../src/core/model/Pair.h>
 
 // matrix
 #define MATRIX_HEIGHT  8
@@ -47,5 +50,21 @@
 #define AIR_ALERT_ENDPOINT "/aerialalerts/"
 #define AIR_ALERT_REGION "Львівська область"
 #define AIR_ALERT_UPDATE_PERIOD 180000 // 3 min
+
+// Currencies exchange
+#define CURRENCY_EXCHANGE_HOST "open.er-api.com"
+#define CURRENCY_EXCHANGE_PORT 80
+#define CURRENCY_EXCHANGE_ENDPOINT "/v6/latest"
+const std::vector<Pair<Currency, Currency> > CURRENCY_EXCHANGE_PAIRS = {
+    {USD, UAH},
+    {PLN, UAH},
+    {PLN, USD}
+    /*,
+    {PLN, USD},
+    {UAH, EUR},
+    {USD, EUR}*/
+};
+#define CURRENCY_EXCHANGE_UPDATE_PERIOD 50000 // should be set to 24 hours
+#define CURRENCY_EXCHANGE_FREQUENCY_REQUEST_TIME 2000 // should be set to 1 sec
 
 #endif

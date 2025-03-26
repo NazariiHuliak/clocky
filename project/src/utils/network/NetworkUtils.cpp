@@ -2,6 +2,10 @@
 
 size_t permits = 1;
 
+size_t getPermits() {
+    return permits;
+}
+
 bool isWiFiConnected() {
     return WiFi.status() == WL_CONNECTED;
 }
@@ -24,13 +28,21 @@ void connectToWiFi(const char *ssid, const char *password) {
     }
 }
 
-void sendGetRequest(const char *host, uint16_t port, const char *endpoint, void *statefulDataStruct,
-                    ParseFunction parseFunction) {
+void setIsUpdatingFalse(void* statefulDataStruct) {
+    if (statefulDataStruct) {
+        IStateful *stateful = static_cast<IStateful*>(statefulDataStruct);
+        stateful->isUpdating = false;
+    }
+}
+
+void sendGetRequest(String host, uint16_t port, String endpoint, void *statefulDataStruct,
+                    ParseFunction parseFunction, void *parseParams) {
     // TODO: Check whether dataStruct is inherited from Stateful
 
     if (!permits) return;
     if (!isWiFiConnected()) {
         Log::error("No internet connection. Cannot perform HTTP GET.");
+        setIsUpdatingFalse(statefulDataStruct);
         return;
     }
 
@@ -39,24 +51,26 @@ void sendGetRequest(const char *host, uint16_t port, const char *endpoint, void 
     String *payloadBuffer = new String();
     bool headersEnded = false;
 
-    client->onError([client, payloadBuffer](void *arg, AsyncClient *client, int8_t error) {
+    client->onError([client, payloadBuffer, statefulDataStruct](void *arg, AsyncClient *client, int8_t error) {
         Log::error("sendGetRequest. Error: ", client->errorToString(error));
         client->close(true);
+
+        setIsUpdatingFalse(statefulDataStruct);
         delete client;
         delete payloadBuffer;
     });
 
     client->onConnect(
-        [host, endpoint, statefulDataStruct, parseFunction, payloadBuffer, &headersEnded](void *arg, AsyncClient *client) {
+        [host, endpoint, statefulDataStruct, parseFunction, parseParams, payloadBuffer, &headersEnded](void *arg, AsyncClient *client) {
             permits--;
             Log::info("sendGetRequest. Connected to ", host, ".");
 
-            client->onDisconnect([payloadBuffer, statefulDataStruct, parseFunction](void *arg, AsyncClient *client) {
+            client->onDisconnect([payloadBuffer, statefulDataStruct, parseFunction, parseParams](void *arg, AsyncClient *client) {
                 Log::info("sendGetRequest. Disconnected.");
 
                 // Log::info("sendGetRequest. Payload: \n", *payloadBuffer);
                 if (parseFunction && !payloadBuffer->isEmpty()) {
-                    parseFunction(*payloadBuffer, statefulDataStruct);
+                    parseFunction(*payloadBuffer, parseParams, statefulDataStruct);
                 }
 
                 client->close(true);
@@ -71,16 +85,17 @@ void sendGetRequest(const char *host, uint16_t port, const char *endpoint, void 
                 payloadBuffer->concat(String(static_cast<char *>(data), len));
             });
 
-            const String request = "GET " + String(endpoint) + " HTTP/1.1\r\n"
-                                   "Host: " + String(host) + "\r\n"
+            const String request = "GET " + endpoint + " HTTP/1.1\r\n"
+                                   "Host: " + host + "\r\n"
                                    "User-Agent: ESP32\r\n"
                                    "Connection: close\r\n\r\n";
-
             client->write(request.c_str());
         });
 
-    if (!client->connect(host, port)) {
+    if (!client->connect(host.c_str(), port)) {
         Log::error("sendGetRequest. Connection failed. Host: ", host, ")");
+
+        setIsUpdatingFalse(statefulDataStruct);
         delete client;
         delete payloadBuffer;
     }

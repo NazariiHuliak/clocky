@@ -22,6 +22,21 @@
  * providing a single point of access throughout the application.
  */
 class NetworkDataManager {
+    AirAlertCache alertCache;
+    CurrencyExchangeCache currencyExchangeCache;
+
+    NetworkDataManager() {
+    }
+
+    ~NetworkDataManager() = default;
+
+    bool canUpdateNext() {
+        // TODO: think how to rewrite it
+        // Log::info("AirAlert update: ", String(alertCache.isUpdating()));
+        // Log::info("CurrencyExchange update:", String(currencyExchangeCache.isUpdating()));
+        return !alertCache.isUpdating() && !currencyExchangeCache.isUpdating();
+    }
+
 public:
     static NetworkDataManager &instance() {
         static NetworkDataManager instance;
@@ -36,12 +51,8 @@ public:
         return alertCache.get();
     }
 
-    Weather getWeather() {
-        return weatherCache.data;
-    }
-
     CurrencyExchange getCurrencyExchange() {
-        return currencyExchangeCache.data;
+        return currencyExchangeCache.get();
     }
 
     void updateEmergencyData() {
@@ -49,18 +60,9 @@ public:
     }
 
     void updateAll() {
-        alertCache.update(millis());
-        weatherCache.update(millis());
-        currencyExchangeCache.update(millis());
+        if (canUpdateNext()) alertCache.update(millis());
+        if (canUpdateNext()) currencyExchangeCache.update(millis());
     }
-
-private:
-    NetworkDataManager() {
-    }
-
-    AirAlertCache alertCache;
-    WeatherCache weatherCache;
-    CurrencyExchangeCache currencyExchangeCache;
 };
 
 
