@@ -31,6 +31,8 @@ public:
     void setPixel(Position2D position2D, CHSV color) const;
 
     void setIcon(Position2D position2D, const uint8_t (&icon)[ICON_HEIGHT][ICON_WIDTH], bool isMonotone) const;
+
+    void setAbbreviation(Position2D position2D, const char* abbreviation) const;
 };
 
 #endif

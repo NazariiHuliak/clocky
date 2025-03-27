@@ -57,7 +57,7 @@ void PixelDrawer::setSentence(Position2D position2D, const char* sentence) const
     const uint8_t letterWidth = 3;
     const uint8_t spacing = 1;
 
-    uint16_t xCursor = position2D.x;
+    int16_t xCursor = position2D.x;
     for (size_t i = 0; i < len; i++) {
         setLetter({xCursor, position2D.y}, sentence[i]);
         xCursor += letterWidth + spacing;
@@ -111,5 +111,24 @@ void PixelDrawer::setIcon(Position2D position2D, const uint8_t (&icon)[ICON_HEIG
                 leds[getMatrixAbsolutePosition(pixelAbsolutPosition)] = CRGB(color[0], color[1], color[2]);
             }
         }
+    }
+}
+
+void PixelDrawer::setAbbreviation(Position2D position2D, const char* abbreviation) const {
+    if (!abbreviation) {
+        Log::warn("setAbbreviation: Provided abbreviation is null.");
+        return;
+    }
+
+    size_t len = strlen(abbreviation);
+    if (len == 0) return;
+
+    const uint8_t letterWidth = 3;
+    const uint8_t spacing = 1;
+    int16_t xCursor = position2D.x;
+
+    for (size_t i = 0; i < 3; i++) {
+        setLetter({xCursor, position2D.y}, abbreviation[i]);
+        xCursor += letterWidth + spacing;
     }
 }

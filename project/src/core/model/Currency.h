@@ -7,6 +7,9 @@ enum Currency {
     EUR,
     PLN,
     KRN,
+    JPY,
+    GBP,
+    AUD,
     Unknown
 };
 

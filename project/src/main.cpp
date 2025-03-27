@@ -14,6 +14,7 @@
 #include <../src/watchface/feature/Stopwatch/StopwatchWatchFace.h>
 #include <../src/watchface/feature/Timer/TimerWatchFace.h>
 #include <../src/watchface/feature/AirAlert/AirAlertWatchFace.h>
+#include <../src/watchface/feature/Currencies/CurrencyExchangeWatchFace.h>
 
 #include "data/network/NetworkDataManager.h"
 #include <data/buttons/ButtonHandler.h>
@@ -36,14 +37,15 @@ ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 
 BrightnessHandler brightnessHandler(A0);
 
-WatchFace *watchFaces[5] = {
+WatchFace *watchFaces[6] = {
     new TimeWatchFace(leds, rtc),
     new TemperatureWatchFace(leds, tempSensor),
     new StopwatchWatchFace(leds),
     new TimerWatchFace(leds, buttonHandler),
-    new AirAlertWatchFace(leds)
+    new AirAlertWatchFace(leds),
+    new CurrencyExchangeWatchFace(leds, buttonHandler)
 };
-WatchFaceManager watchFaceManager(watchFaces, 5);
+WatchFaceManager watchFaceManager(watchFaces, 6);
 
 void setup() {
     Serial.begin(115200);

@@ -4,10 +4,10 @@
 #include <Arduino.h>
 
 struct Position2D {
-    uint16_t x;
-    uint16_t y;
+    int16_t x;
+    int16_t y;
 
-    Position2D(uint16_t xVal = 0, uint16_t yVal = 0) : x(xVal), y(yVal) {}
+    Position2D(int16_t xVal = 0, int16_t yVal = 0) : x(xVal), y(yVal) {}
 
     void print() const {
         Serial.println("(" + String(x) + ", " + String(y) + ")");

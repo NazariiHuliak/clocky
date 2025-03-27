@@ -7,7 +7,7 @@
 #include <Arduino.h>
 
 #include "core/model/Pair.h"
-#include "resources/Currency.h"
+#include "../../core/model/Currency.h"
 
 class CurrencyUtils {
 public:

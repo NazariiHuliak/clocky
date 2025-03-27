@@ -21,8 +21,16 @@ unsigned long AirAlertWatchFace::getLastTimeDataUpdate() {
 void AirAlertWatchFace::showFrame(const int16_t xOffset) {
     bool isAirAlert = airAlert.alertActive;
 
-    drawer.setSentence(Position2D(8 + xOffset, 1),
-                       isAirAlert ? "ALRT" : "NONE");
+    if (airAlert.lastUpdate == 0) {
+        if (isWiFiConnected()) {
+            drawer.setIcon(Position2D(9 + xOffset, -1), noData, false);
+        } else {
+            drawer.setIcon(Position2D(9 + xOffset, 1), noWifi, false);
+        }
+    } else {
+        drawer.setSentence(Position2D(8 + xOffset, 1),
+                           isAirAlert ? "ALRT" : "NONE");
+    }
 
     drawer.setIcon(
         Position2D(xOffset, 0),

@@ -2,7 +2,7 @@
 #define CURRENCYEXCHANGEDATA_H
 
 #include "Arduino.h"
-#include "resources/Currency.h"
+#include "../Currency.h"
 
 struct ExchangeRate {
     Currency fromCurrency;

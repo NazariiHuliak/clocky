@@ -60,7 +60,7 @@ public:
     }
 
     void updateAll() {
-        if (canUpdateNext()) alertCache.update(millis());
+        // if (canUpdateNext()) alertCache.update(millis());
         if (canUpdateNext()) currencyExchangeCache.update(millis());
     }
 };

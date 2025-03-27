@@ -136,7 +136,7 @@ inline void parseCurrencyExchange(String &payload, void *parseParams, void *stat
         if (it != exchangeRates.end()) {
             double exchangeRate = targetCurrency.value ? 1.0 / it->second : it->second;
             statefulCurrencyExchange->data.exchangeRate[currentRateIndex] =
-                    ExchangeRate{baseCurrency, targetCurrency.key, exchangeRate};
+                    ExchangeRate{targetCurrency.key, baseCurrency, exchangeRate};
             currentRateIndex++;
         } else {
             Log::error("Currency not found in exchangeRates map: ", CurrencyUtils::toString(targetCurrency.key));

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <vector>
-#include "Currency.h"
+#include "../core/model/Currency.h"
 #include <../src/core/model/Pair.h>
 
 // matrix

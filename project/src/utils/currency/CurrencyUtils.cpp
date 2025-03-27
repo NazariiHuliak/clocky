@@ -13,7 +13,7 @@ Currency CurrencyUtils::findMostFrequentCurrency(
         currencyCount[pair.value]++;
     }
 
-    Currency mostFrequent = Currency::UAH;
+    Currency mostFrequent = Currency::Unknown;
     int maxCount = 0;
 
     for (const auto& entry : currencyCount) {
@@ -70,6 +70,9 @@ const char* CurrencyUtils::toString(Currency currency) {
         case Currency::EUR: return "EUR";
         case Currency::PLN: return "PLN";
         case Currency::KRN: return "KRN";
+        case Currency::JPY: return "JPY";
+        case Currency::GBP: return "GBP";
+        case Currency::AUD: return "AUD";
         default: return "Unknown";
     }
 }
@@ -80,6 +83,9 @@ Currency CurrencyUtils::toEnum(const String &currencyStr) {
     if (currencyStr == "EUR") return Currency::EUR;
     if (currencyStr == "PLN") return Currency::PLN;
     if (currencyStr == "KRN") return Currency::KRN;
+    if (currencyStr == "JPY") return Currency::JPY;
+    if (currencyStr == "GBP") return Currency::GBP;
+    if (currencyStr == "AUD") return Currency::AUD;
 
     return Currency::Unknown;
 }

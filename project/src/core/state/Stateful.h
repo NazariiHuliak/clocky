@@ -1,7 +1,9 @@
 #ifndef STATEFUL_H
 #define STATEFUL_H
 
-#include "IStateful.h"
+struct IStateful {
+    bool isUpdating = false;
+};
 
 template <typename DATA_TYPE>
 struct Stateful : public IStateful {
