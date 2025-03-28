@@ -17,7 +17,7 @@ class TimerWatchFace final : public WatchFace {
      * 5) paused <br>
      */
     static constexpr uint8_t numModes = 5;
-    uint8_t currentMode = 0;
+    uint8_t currentModeIndex = 0;
 
     // Blinking settings
     bool isVisible = true;
@@ -74,6 +74,7 @@ public:
     void resetMode() override;
     bool isExternalUpdateAllowed() override;
     void updateData(unsigned long updateTime) override;
+    void setMode(uint8_t mode) override;
 };
 
 #endif

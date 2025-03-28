@@ -47,3 +47,5 @@ void TemperatureWatchFace::updateData(unsigned long updateTime) {
 
     Log::info("TemperatureWatchFace: data updated at ", String(updateTime), ".");
 }
+
+void TemperatureWatchFace::setMode(uint8_t mode) {}

@@ -15,6 +15,7 @@
 #include <../src/watchface/feature/Timer/TimerWatchFace.h>
 #include <../src/watchface/feature/AirAlert/AirAlertWatchFace.h>
 #include <../src/watchface/feature/Currencies/CurrencyExchangeWatchFace.h>
+#include <../src/watchface/feature/Service/ServiceWatchFace.h>
 
 #include "data/network/NetworkDataManager.h"
 #include <data/buttons/ButtonHandler.h>
@@ -37,18 +38,20 @@ ButtonHandler buttonHandler(buttonPins, NUM_BUTTONS);
 
 BrightnessHandler brightnessHandler(A0);
 
-WatchFace *watchFaces[6] = {
+WatchFace *watchFaces[7] = {
     new TimeWatchFace(leds, rtc),
     new TemperatureWatchFace(leds, tempSensor),
     new StopwatchWatchFace(leds),
     new TimerWatchFace(leds, buttonHandler),
     new AirAlertWatchFace(leds),
-    new CurrencyExchangeWatchFace(leds, buttonHandler)
+    new CurrencyExchangeWatchFace(leds, buttonHandler),
+    new ServiceWatchFace(leds)
 };
-WatchFaceManager watchFaceManager(watchFaces, 6);
+WatchFaceManager watchFaceManager(watchFaces, 7);
 
 void setup() {
     Serial.begin(115200);
+    EEPROM.begin(EEPROM_SIZE);
 
     // Leds
     FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -67,8 +70,12 @@ void setup() {
     // Watchface manager
     watchFaceManager.begin();
 
-    // TODO: Show loading window when connection to the WiFi
-    connectToWiFi(SSID_, PASSWORD_);
+     if (isWifiSettingsExistsInEEPROM() && !isWiFiConnected()) {
+         WiFi.softAPdisconnect(true);
+         connectToWifi(readWifiDataFromEEPROM());
+     } else {
+         watchFaceManager.goToSettingsWatchFace();
+     }
 }
 
 void loop() {
@@ -95,7 +102,8 @@ void loop() {
         FastLED.show();
     }
 
+    if (!watchFaceManager.isSettingsWatchFaceActive()) {
+        if (isWiFiConnected()) NetworkDataManager::instance().updateAll();
+    }
     brightnessHandler.update();
-    // if (isWiFiConnected()) NetworkDataManager::instance().updateEmergencyData();
-    if (isWiFiConnected())NetworkDataManager::instance().updateAll();
 }

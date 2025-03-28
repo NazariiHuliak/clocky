@@ -2,30 +2,10 @@
 
 #include "resources/font/letters.h"
 #include "utils/log/Log.h"
+#include "../src/core/model/SymbolType.h"
+#include "resources/font/special.h"
 
-void PixelDrawer::setDigit(Position2D position2D, uint8_t digit) const {
-    for (uint8_t row = 0; row < 5; row++) {
-        byte rowData = numbers[digit][row];
-
-        uint16_t pixelRow = position2D.y + row;
-        if (pixelRow < 0 || pixelRow > MATRIX_HEIGHT - 1) continue;
-
-        uint16_t pixelNumberInRows = pixelRow * MATRIX_WIDTH;
-        for (uint8_t bitPos = 6; bitPos >= 4; bitPos--) {
-            uint16_t pixelCol = position2D.x + (6 - bitPos);
-            if (pixelCol < 0 || pixelCol > MATRIX_WIDTH - 1) continue;
-
-            uint16_t pixelAbsolutPosition = pixelNumberInRows + pixelCol;
-
-            leds[getMatrixAbsolutePosition(pixelAbsolutPosition)] =
-                    bitRead(rowData, bitPos) ? digitColor : CHSV(0, 0, 0);
-        }
-    }
-}
-
-void PixelDrawer::setLetter(Position2D position2D, char letter) const {
-    const byte* pattern = getLetterPattern(letter);
-
+void PixelDrawer::setPattern(Position2D position2D, const byte *pattern) const {
     for (uint8_t row = 0; row < 5; row++) {
         byte rowData = pattern[row];
 
@@ -45,7 +25,22 @@ void PixelDrawer::setLetter(Position2D position2D, char letter) const {
     }
 }
 
-void PixelDrawer::setSentence(Position2D position2D, const char* sentence) const {
+void PixelDrawer::setDigit(Position2D position2D, uint8_t digit) const {
+    const byte *pattern = getDigitPattern(digit);
+    setPattern(position2D, pattern);
+}
+
+void PixelDrawer::setLetter(Position2D position2D, char letter) const {
+    const byte *pattern = getLetterPattern(letter);
+    setPattern(position2D, pattern);
+}
+
+void PixelDrawer::setSpecialSymbol(Position2D position2D, char letter) const {
+    const byte *pattern = getSpecialSignPattern(letter);
+    setPattern(position2D, pattern);
+}
+
+void PixelDrawer::setSentence(Position2D position2D, const char *sentence) const {
     if (!sentence) {
         Log::warn("setSentence: Provided sentence is null.");
         return;
@@ -59,8 +54,19 @@ void PixelDrawer::setSentence(Position2D position2D, const char* sentence) const
 
     int16_t xCursor = position2D.x;
     for (size_t i = 0; i < len; i++) {
-        setLetter({xCursor, position2D.y}, sentence[i]);
         xCursor += letterWidth + spacing;
+        if (sentence[i] == ' ') continue;
+        if (xCursor < -2 || xCursor > MATRIX_WIDTH + 2) continue;
+        switch (getSymbolType(sentence[i])) {
+            case LETTER: setLetter({xCursor, position2D.y}, sentence[i]);
+                break;
+            case DIGIT: setDigit({xCursor, position2D.y}, sentence[i] - '0');
+                break;
+            case SPECIAL:
+                setSpecialSymbol({xCursor, position2D.y}, sentence[i]);
+
+                break;
+        }
     }
 }
 
@@ -114,7 +120,7 @@ void PixelDrawer::setIcon(Position2D position2D, const uint8_t (&icon)[ICON_HEIG
     }
 }
 
-void PixelDrawer::setAbbreviation(Position2D position2D, const char* abbreviation) const {
+void PixelDrawer::setAbbreviation(Position2D position2D, const char *abbreviation) const {
     if (!abbreviation) {
         Log::warn("setAbbreviation: Provided abbreviation is null.");
         return;

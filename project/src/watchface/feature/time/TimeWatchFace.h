@@ -43,6 +43,7 @@ public:
     void resetMode() override;
     bool isExternalUpdateAllowed() override;
     void updateData(unsigned long updateTime) override;
+    void setMode(uint8_t mode) override;
 };
 
 #endif

@@ -10,7 +10,7 @@ bool isWiFiConnected() {
     return WiFi.status() == WL_CONNECTED;
 }
 
-void connectToWiFi(const char *ssid, const char *password) {
+inline void connectToWiFi(const char *ssid, const char *password) {
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
     Log::info("Connecting to WiFi...");
@@ -26,6 +26,10 @@ void connectToWiFi(const char *ssid, const char *password) {
     } else {
         Log::warn("Failed to connect to WiFi within timeout.");
     }
+}
+
+void connectToWifi(const Pair<String, String> &wifiData) {
+    connectToWiFi(wifiData.key.c_str(), wifiData.value.c_str());
 }
 
 void setIsUpdatingFalse(void* statefulDataStruct) {

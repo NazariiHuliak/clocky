@@ -18,7 +18,7 @@ unsigned long StopwatchWatchFace::getLastTimeDataUpdate() {
 }
 
 void StopwatchWatchFace::showFrame(const int16_t xOffset) {
-    if (currentMode == 2 && !displayTime) {
+    if (currentModeIndex == 2 && !displayTime) {
         FastLED.clear();
         drawer.setIcon(Position2D(xOffset, 0), stopwatch, false);
         return;
@@ -34,25 +34,25 @@ void StopwatchWatchFace::showFrame(const int16_t xOffset) {
 }
 
 void StopwatchWatchFace::nextMode() {
-    currentMode = (currentMode == 2) ? 1 : currentMode + 1;
+    currentModeIndex = (currentModeIndex == 2) ? 1 : currentModeIndex + 1;
 }
 
 void StopwatchWatchFace::resetMode() {
-    currentMode = 0;
+    currentModeIndex = 0;
     minutes = 0;
     seconds = 0;
 }
 
 bool StopwatchWatchFace::isExternalUpdateAllowed() {
-    return currentMode == 0;
+    return currentModeIndex == 0;
 }
 
 void StopwatchWatchFace::updateData(unsigned long updateTime) {
     lastDataUpdate = updateTime;
-    if (currentMode == 2) {
+    if (currentModeIndex == 2) {
         displayTime = !displayTime;
         return;
-    } else if (currentMode == 0) return;
+    } else if (currentModeIndex == 0) return;
 
     incrementTime();
     Log::info("StopwatchWatchFace: data updated at ", String(updateTime), ".");
@@ -61,7 +61,7 @@ void StopwatchWatchFace::updateData(unsigned long updateTime) {
 void StopwatchWatchFace::incrementTime() {
     if (seconds + 1 > 59) {
         if (minutes + 1 > 99) {
-            currentMode = 2;
+            currentModeIndex = 2;
         } else {
             minutes++;
         }
@@ -69,4 +69,8 @@ void StopwatchWatchFace::incrementTime() {
     } else {
         seconds++;
     }
+}
+
+void StopwatchWatchFace::setMode(uint8_t mode) {
+    currentModeIndex = mode;
 }

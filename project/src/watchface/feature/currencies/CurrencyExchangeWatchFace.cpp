@@ -260,3 +260,7 @@ void CurrencyExchangeWatchFace::checkButtons() {
             break;
     }
 }
+
+void CurrencyExchangeWatchFace::setMode(uint8_t mode) {
+    currentModeIndex = mode;
+}

@@ -74,7 +74,6 @@ void WatchFaceManager::updateWrapper(void *parameter) {
 bool WatchFaceManager::isUpdateDataAllowed() const {
     for (uint8_t i = 0; i < m_count; i++) {
         if (!watchFaces[i]->isExternalUpdateAllowed()) {
-            Log::info(("WatchFace [" + String(i) + "]. Does not allow external update").c_str());
             return false;
         }
     }
@@ -104,6 +103,11 @@ void WatchFaceManager::checkAirAlert(unsigned long updateTime) {
 void WatchFaceManager::updateWatchFacesData(unsigned long updateTime) {
     if (updateTime - lastTimeDataUpdate >= checkUpdatePeriod) {
         lastTimeDataUpdate = updateTime;
+
+        if (!initialTransition && watchFaces[settingsWatchFaceIndex]->isWatchFaceChangeAllowed()) {
+            currentWatchFace = 0;
+            initialTransition = true;
+        }
 
         const bool globalUpdateAllowed = isUpdateDataAllowed();
         for (uint8_t i = 0; i < m_count; i++) {
@@ -163,4 +167,13 @@ void WatchFaceManager::performTransition() {
         isWatchFaceChangeAllowed = true;
         currentWatchFace = nextValue;
     }
+}
+
+bool WatchFaceManager::isSettingsWatchFaceActive() const {
+    return currentWatchFace == settingsWatchFaceIndex && !watchFaces[currentWatchFace]->isExternalUpdateAllowed();
+}
+
+void WatchFaceManager::goToSettingsWatchFace() {
+    currentWatchFace = settingsWatchFaceIndex;
+    watchFaces[currentWatchFace]->setMode(2);
 }

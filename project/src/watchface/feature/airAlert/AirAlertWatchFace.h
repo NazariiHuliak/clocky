@@ -35,6 +35,8 @@ public:
     void showFrame(int16_t xOffset) override;
     void nextMode() override;
     void resetMode() override;
+    void setMode(uint8_t mode) override;
+
     bool isExternalUpdateAllowed() override;
     void updateData(unsigned long updateTime) override;
 };

@@ -91,3 +91,7 @@ void TimeWatchFace::performTransition() {
         currentModeIndex = nextValue;
     }
 }
+
+void TimeWatchFace::setMode(uint8_t mode) {
+    currentModeIndex = mode;
+}

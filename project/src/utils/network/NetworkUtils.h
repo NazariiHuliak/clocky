@@ -13,6 +13,8 @@ bool isWiFiConnected();
 
 void connectToWiFi(const char *ssid, const char *password);
 
+void connectToWifi(const Pair<String, String> &wifiData);
+
 typedef void (*ParseFunction)(String &, void *, void *);
 void sendGetRequest(String host, uint16_t port, String endpoint, void *statefulDataStruct,
                     ParseFunction parseFunction, void *parseParams);

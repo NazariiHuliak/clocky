@@ -20,9 +20,13 @@ public:
 
     void setDigit(Position2D position2D, uint8_t digit) const;
 
+    void setPattern(Position2D position2D, const byte *pattern) const;
+
     void setLetter(Position2D position2D, char letter) const;
 
-    void setSentence(Position2D position2D, const char* sentence) const;
+    void setSpecialSymbol(Position2D position2D, char letter) const;
+
+    void setSentence(Position2D position2D, const char *sentence) const;
 
     void setColon(bool turnOn, Position2D offsetPosition) const;
 
@@ -32,7 +36,7 @@ public:
 
     void setIcon(Position2D position2D, const uint8_t (&icon)[ICON_HEIGHT][ICON_WIDTH], bool isMonotone) const;
 
-    void setAbbreviation(Position2D position2D, const char* abbreviation) const;
+    void setAbbreviation(Position2D position2D, const char *abbreviation) const;
 };
 
 #endif

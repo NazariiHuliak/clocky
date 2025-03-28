@@ -24,6 +24,7 @@ public:
     virtual void showFrame(int16_t xOffset) = 0;
     virtual void nextMode() = 0;
     virtual void resetMode() = 0;
+    virtual void setMode(uint8_t mode);
 
     virtual bool isExternalUpdateAllowed() = 0;
     virtual void updateData(unsigned long updateTime) = 0;

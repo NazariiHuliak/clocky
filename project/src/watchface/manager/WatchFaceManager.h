@@ -13,7 +13,11 @@ class WatchFaceManager final : public MultiInitiationTransitionable {
     // WatchFaces
     WatchFace **watchFaces;
     uint8_t m_count;
-    uint8_t currentWatchFace = 0;
+    uint8_t currentWatchFace = 6;
+
+    // Settings
+    uint8_t settingsWatchFaceIndex = 6;
+    bool initialTransition = false;
 
     // Update
     bool isWatchFaceChangeAllowed = true;
@@ -59,6 +63,10 @@ public:
     void nextWatchFace();
 
     void resetCurrentWatchFace() const;
+
+    bool isSettingsWatchFaceActive() const;
+
+    void goToSettingsWatchFace();
 };
 
 #endif

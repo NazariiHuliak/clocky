@@ -6,11 +6,11 @@ TimerWatchFace::TimerWatchFace(CRGB *leds, ButtonHandler &buttons)
     : WatchFace(leds), buttonHandler(buttons) {}
 
 bool TimerWatchFace::isWatchFaceChangeAllowed() {
-    return currentMode == 0 || currentMode == 5;
+    return currentModeIndex == 0 || currentModeIndex == 5;
 }
 
 unsigned long TimerWatchFace::getUpdateDataPeriod() {
-    return (currentMode == 0) ? updateDataPeriod : buttonsCheckPeriod;
+    return (currentModeIndex == 0) ? updateDataPeriod : buttonsCheckPeriod;
 }
 
 unsigned long TimerWatchFace::getLastTimeDataUpdate() {
@@ -19,7 +19,7 @@ unsigned long TimerWatchFace::getLastTimeDataUpdate() {
 
 void TimerWatchFace::nextMode() {
     // setting up the frequently used timers
-    currentMode = 1;
+    currentModeIndex = 1;
     commonTimerInitializing = true;
     changeCurrentCommonTimer(true);
 }
@@ -27,9 +27,9 @@ void TimerWatchFace::nextMode() {
 void TimerWatchFace::showFrame(int16_t xOffset) {
     if (!isVisible) FastLED.clear();
 
-    showMinutes(currentMode == 3 || currentMode == 5, xOffset);
-    showSeconds(currentMode == 2 || currentMode == 5, xOffset);
-    showColon(currentMode == 5, xOffset);
+    showMinutes(currentModeIndex == 3 || currentModeIndex == 5, xOffset);
+    showSeconds(currentModeIndex == 2 || currentModeIndex == 5, xOffset);
+    showColon(currentModeIndex == 5, xOffset);
 
     drawer.setIcon(Position2D(xOffset, 0), timer, false);
 }
@@ -38,23 +38,23 @@ void TimerWatchFace::resetMode() {
     currentData.minutes = 0;
     currentData.seconds = 0;
     currentCommonTimer = -1;
-    currentMode = 0;
+    currentModeIndex = 0;
     commonTimerInitializing = false;
     isVisible = true;
 }
 
 bool TimerWatchFace::isExternalUpdateAllowed() {
-    return currentMode == 0;
+    return currentModeIndex == 0;
 }
 
 void TimerWatchFace::updateData(unsigned long updateTime) {
-    if (currentMode != 0) {
+    if (currentModeIndex != 0) {
         checkButtons();
 
-        if (currentMode == 4 && updateTime - lastDataUpdate >= updateDataPeriod) {
+        if (currentModeIndex == 4 && updateTime - lastDataUpdate >= updateDataPeriod) {
             decrementTime();
             lastDataUpdate = updateTime;
-        } else if (currentMode != 1 && updateTime - lastShowedTime >= showingTime) {
+        } else if (currentModeIndex != 1 && updateTime - lastShowedTime >= showingTime) {
             isVisible = !isVisible;
             lastShowedTime = updateTime;
         }
@@ -101,7 +101,7 @@ void TimerWatchFace::checkButtons() {
 }
 
 void TimerWatchFace::sideButtonClick(bool isRight) {
-    switch (currentMode) {
+    switch (currentModeIndex) {
         case 1:
             changeCurrentCommonTimer(isRight);
             break;
@@ -117,34 +117,34 @@ void TimerWatchFace::sideButtonClick(bool isRight) {
 }
 
 void TimerWatchFace::middleButtonClick() {
-    switch (currentMode) {
+    switch (currentModeIndex) {
         case 1:
             if (!commonTimerInitializing) {
                 commonTimerInitializing = true;
                 changeCurrentCommonTimer(true);
             } else {
                 // countdown
-                currentMode = 4;
+                currentModeIndex = 4;
             }
         break;
         case 2:
             // go to selecting minutes
-                currentMode = 3;
+                currentModeIndex = 3;
         break;
         case 3:
             // minutes and seconds were set. Countdown
-                currentMode = 4;
+                currentModeIndex = 4;
         break;
         case 4:
             // pause
-                currentMode = 5;
+                currentModeIndex = 5;
         break;
         case 5:
             if (currentData.minutes == 0 && currentData.seconds == 0) {
                 resetMode();
             } else {
                 // resume
-                currentMode = 4;
+                currentModeIndex = 4;
             }
         break;
         default: break;
@@ -152,12 +152,12 @@ void TimerWatchFace::middleButtonClick() {
 }
 
 void TimerWatchFace::middleButtonHold() {
-    if (currentMode == 4 || currentMode == 5) {
+    if (currentModeIndex == 4 || currentModeIndex == 5) {
         // resetting mode if countdown or pause
         resetMode();
     } else {
         // go to manual timer set mode
-        currentMode = 2;
+        currentModeIndex = 2;
         currentData.minutes = 0;
         currentData.seconds = 0;
     }
@@ -173,7 +173,7 @@ void TimerWatchFace::decrementTime() {
     if (currentData.seconds == 0) {
         if (currentData.minutes == 0) {
             currentCommonTimer = -1;
-            currentMode = 5;
+            currentModeIndex = 5;
         } else {
             currentData.minutes--;
             currentData.seconds = 59;
@@ -181,4 +181,8 @@ void TimerWatchFace::decrementTime() {
     } else {
         currentData.seconds--;
     }
+}
+
+void TimerWatchFace::setMode(uint8_t mode) {
+    currentModeIndex = mode;
 }

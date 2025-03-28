@@ -67,4 +67,18 @@ const std::vector<Pair<Currency, Currency> > CURRENCY_EXCHANGE_PAIRS = {
 #define CURRENCY_EXCHANGE_UPDATE_PERIOD 50000 // should be set to 24 hours
 #define CURRENCY_EXCHANGE_FREQUENCY_REQUEST_TIME 2000 // should be set to 1 sec
 
+//Access point wifi setting
+#define LOCAL_SSID_ "Clocky"
+#define LOCAL_PASSWORD_ "12345678"
+
+// EEPROM data
+#define SSID_INDEX 0
+#define PASSWORD_INDEX 33
+#define CURRENCY_PAIR_INDEX 67
+
+#define EEPROM_SIZE 512
+#define MAX_CURRENCY_PAIRS 5
+#define CURRENCY_PAIR_SIZE 7
+#define CURRENCY_PAIR_INDEX 67
+
 #endif

@@ -56,3 +56,7 @@ void AirAlertWatchFace::updateData(unsigned long updateTime) {
     airAlert = NetworkDataManager::instance().getAirAlert();
     Log::info("AirAlertWatchFace: was synchronized at ", String(updateTime), ".");
 }
+
+void AirAlertWatchFace::setMode(uint8_t mode) {
+    currentModeIndex = mode;
+}

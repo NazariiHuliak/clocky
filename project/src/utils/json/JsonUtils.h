@@ -7,6 +7,8 @@
 #include "../src/utils/log/Log.h"
 #include "core/state/Stateful.h"
 #include "utils/currency/CurrencyUtils.h"
+#include "../src/core/model/network/AirAlert.h"
+#include "../src/core/model/network/CurrencyExchange.h"
 
 inline void deleteHeaders(String &payload) {
     int headerEnd = payload.indexOf("\r\n\r\n");
@@ -153,6 +155,45 @@ inline void parseCurrencyExchange(String &payload, void *parseParams, void *stat
         const ExchangeRate &rate = statefulCurrencyExchange->data.exchangeRate[i];
         Serial.printf("From: %s, To: %s, Rate: %.4f\n", CurrencyUtils::toString(rate.fromCurrency),
                       CurrencyUtils::toString(rate.toCurrency), rate.rate);
+    }
+}
+
+inline void parseServerData(const String &body, Pair<String, String> &wifiDetails, std::vector<Pair<String, String>> &currencyPairs) {
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, body);
+
+    if (error) {
+        Log::error("parseServerData: Deserialization failed: ", String(error.f_str()));
+        return;
+    }
+
+    wifiDetails.key = doc["ssid"].as<String>();
+    wifiDetails.value = doc["password"].as<String>();
+    Serial.print("Received SSID: ");
+    Serial.println(wifiDetails.key);
+    Serial.print("Received Password: ");
+    Serial.println(wifiDetails.value);
+
+    // Parse currency pairs
+
+    if (!doc["currencyPairs"].is<JsonArray>()) {
+        Log::error("parseServerData: 'currencyPairs' not found or invalid in JSON payload.");
+        return;
+    }
+
+    JsonArray currencyPairArray = doc["currencyPairs"].as<JsonArray>();
+    currencyPairs.clear();
+
+    for (JsonVariant pair : currencyPairArray) {
+        String from = pair["from"].as<String>();
+        String to = pair["to"].as<String>();
+        if (from.length() != 3 || to.length() != 3) {
+            Log::error("parseServerData: 'from' or 'to' are invalid length.");
+            continue;
+        }
+        currencyPairs.push_back(Pair<String, String>(from, to));
+        Serial.print(from + " → " + to);
+        Serial.println();
     }
 }
 

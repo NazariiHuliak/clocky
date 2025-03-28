@@ -18,7 +18,7 @@ class StopwatchWatchFace final : public WatchFace {
      * 2) paused
     */
     const uint8_t numModes = 3;
-    uint8_t currentMode = 0;
+    uint8_t currentModeIndex = 0;
     bool displayTime = true;
 
     // Stopwatch logic
@@ -37,6 +37,7 @@ public:
     void resetMode() override;
     bool isExternalUpdateAllowed() override;
     void updateData(unsigned long updateTime) override;
+    void setMode(uint8_t mode) override;
 };
 
 #endif
